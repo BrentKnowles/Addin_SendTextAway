@@ -6,7 +6,7 @@
     <ProductVersion>10.0.0</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{D11FCD84-F7BD-47D9-A9F4-216319B5351C}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <RootNamespace>Addin_SendTextAway</RootNamespace>
     <AssemblyName>Addin_SendTextAway</AssemblyName>
   </PropertyGroup>
@@ -31,4 +31,21 @@
     <ConsolePause>False</ConsolePause>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Compile Include="mef_Addin_SendTextAway.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\yom2013B\coreutilities\coreutilities2013.csproj">
+      <Project>{6EAA0B60-70E3-49FB-88E9-272D2719CECF}</Project>
+      <Name>coreutilities2013</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\yom2013B\MEF_Interfaces\MEF_Interfaces.csproj">
+      <Project>{2E366A51-224A-4C3B-90D6-FE8C81C9EB78}</Project>
+      <Name>MEF_Interfaces</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>
