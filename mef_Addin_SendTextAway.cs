@@ -56,7 +56,7 @@ namespace MefAddIns
 			get
 			{
 				PlugInAction action = new PlugInAction();
-				action.HotkeyNumber = -1;
+		//		action.HotkeyNumber = -1;
 				action.MyMenuName = "Send Text Away";
 				action.ParentMenuName = "";
 				action.IsOnContextStrip = false;
