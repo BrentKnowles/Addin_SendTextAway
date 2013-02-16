@@ -4,6 +4,7 @@ namespace MefAddIns
 	using MefAddIns.Extensibility;
 	using CoreUtilities;
 	using System.ComponentModel.Composition;
+	using System.ComponentModel;
 	using System;
 	using System.Windows.Forms;
 	using System.Diagnostics;
@@ -43,11 +44,19 @@ namespace MefAddIns
 			NewMessage.Show("SendAway " + param.ToString());
 		}
 		
-		public void RespondToCallToAction ()
+		public void RespondToCallToAction<T>(T form) where T: System.Windows.Forms.Form, MEF_Interfaces.iAccess 
 		{
 			
 		
 		}
+
+		public override string dependencyguid {
+			get {
+				//TODO remove. This does not need a dependency. Just testing
+				return "yourothermindmarkup";
+			}
+		}
+
 		public override string BuildFileName ()
 		{
 			return  System.IO.Path.Combine (System.IO.Path.GetTempPath (), Guid.NewGuid().ToString () + ".txt");
