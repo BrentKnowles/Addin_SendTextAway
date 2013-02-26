@@ -38,13 +38,13 @@ namespace MefAddIns
 			get { return @"Send Text Away"; }
 		}
 		
-		public void ActionWithParam (object param)
+		public void ActionWithParamForNoteTextActions (object param)
 		{
 			// will be used by this one
 			NewMessage.Show("SendAway " + param.ToString());
 		}
 		
-		public void RespondToCallToAction<T>(T form) where T: System.Windows.Forms.Form, MEF_Interfaces.iAccess 
+		public void RespondToMenuOrHotkey<T>(T form) where T: System.Windows.Forms.Form, MEF_Interfaces.iAccess 
 		{
 			
 		
@@ -57,7 +57,7 @@ namespace MefAddIns
 			}
 		}
 
-		public override string BuildFileName ()
+		public override string BuildFileNameForActionWithParam ()
 		{
 			return  System.IO.Path.Combine (System.IO.Path.GetTempPath (), Guid.NewGuid().ToString () + ".txt");
 		}
