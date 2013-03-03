@@ -47,7 +47,7 @@ namespace MefAddIns
 		public void RespondToMenuOrHotkey<T>(T form) where T: System.Windows.Forms.Form, MEF_Interfaces.iAccess 
 		{
 			
-		
+
 		}
 
 		public override string dependencyguid {
@@ -71,6 +71,7 @@ namespace MefAddIns
 				action.IsOnContextStrip = false;
 				action.IsOnAMenu = false;
 				action.IsNoteAction = true;
+
 				action.QuickLinkShows = false;
 				action.IsANote = false;
 				action.GUID = GUID;
