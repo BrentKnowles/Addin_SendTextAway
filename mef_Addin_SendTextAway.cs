@@ -9,6 +9,7 @@ namespace MefAddIns
 	using System.Windows.Forms;
 	using System.Diagnostics;
 	using System.Collections.Generic;
+	using SendTextAway;
 	/// <summary>
 	/// Provides an implementation of a supported language by implementing ISupportedLanguage. 
 	/// Moreover it uses Export attribute to make it available thru MEF framework.
@@ -40,8 +41,11 @@ namespace MefAddIns
 		
 		public void ActionWithParamForNoteTextActions (object param)
 		{
+
+			sendWord Word = new sendWord();
+			Word.example();
 			// will be used by this one
-			NewMessage.Show("SendAway " + param.ToString());
+			//NewMessage.Show("SendAway " + param.ToString());
 		}
 		
 		public void RespondToMenuOrHotkey<T>(T form) where T: System.Windows.Forms.Form, MEF_Interfaces.iAccess 
