@@ -27,7 +27,8 @@ namespace SendTextAway
         protected int chapter = 1;
         protected Hashtable FootnoteHash;
         protected Hashtable Footnotes_in_specific_chapter;
-
+		// added for unit testing
+		public bool SuppressMessages = false;
 
         protected string chaptertoken
         {
@@ -78,7 +79,7 @@ namespace SendTextAway
            // try
           //  {
               //  ControlFile zcontrolFile = (ControlFile)CoreUtilities.General.DeSerialize(sControlFile, typeof(ControlFile));
-                InitializeDocument(zcontrolfile);
+               if ( InitializeDocument(zcontrolfile) == -1) return Constants.BLANK;
 
 
                 // load template file (ToDo: must do this for real eventually)
@@ -178,7 +179,11 @@ namespace SendTextAway
             {
                 string sLineError = String.Format("LINES DO NOT MATCH. Original lines {0} + blank lines {1} = {2} but new lines is = {3}. NOTE: Extra blank space at TOP of will throw count off.",
                     linecount, blankline, linecount + blankline, newlinecount);
+
+				if (false == SuppressMessages)
+				{
                 NewMessage.Show(sLineError);
+				}
             }
             if (error_CountInlineBrackets > 0)
             {
@@ -921,6 +926,7 @@ namespace SendTextAway
                        */
                     if (sFrontTag == "'''''")
                     {
+						//NewMessage.Show ("here1");
                         InlineItalic(0);
                         InlineBold(0);
                         
@@ -928,6 +934,7 @@ namespace SendTextAway
                     else
                         if (sFrontTag == "'''")
                         {
+						//NewMessage.Show ("here");
                             InlineBold(0);
                             // oSelection.set_Style(ref controlFile.oBodyText);
 
@@ -993,6 +1000,7 @@ namespace SendTextAway
                                         }
                                         else if (sEndTag == "]]")
                                         {
+					//	NewMessage.Show ("huh");
                                             // do nothing
                                             switch (controlFile.OptionalCode)
                                             {
@@ -1482,6 +1490,7 @@ namespace SendTextAway
 
             if (controlFile.EndMessage != "")
             {
+				if (false == SuppressMessages)
                 NewMessage.Show(controlFile.EndMessage);
             }
         }
@@ -1588,8 +1597,9 @@ namespace SendTextAway
         /// <summary>
         /// before whatever initial operations are required to open the filestream
         /// or whatever (in the case of Word Auto, will require global variables)
+		/// error code of -1 means to abort the write process
         /// </summary>
-        protected virtual void InitializeDocument(ControlFile _controlFile)
+        protected virtual int InitializeDocument(ControlFile _controlFile)
         {
             FootnoteHash = new Hashtable();
             Footnotes_in_specific_chapter = new Hashtable();
@@ -1597,7 +1607,11 @@ namespace SendTextAway
             tallyTable = new System.Collections.Hashtable();
             variableTable = new System.Collections.Hashtable();
 
-
+			return 1;
         }
+		public override string ToString ()
+		{
+			return string.Format ("[sendBase: ]");
+		}
     }
 }

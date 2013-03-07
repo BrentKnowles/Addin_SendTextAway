@@ -4,7 +4,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 using System.ComponentModel;
-
+using CoreUtilities;
 
 namespace SendTextAway
 {
@@ -160,7 +160,7 @@ namespace SendTextAway
         /// </summary>
 
         #region epubonly
-        private string outputdirectory;
+        private string outputdirectory=Constants.BLANK;
         /// <summary>
         /// For things like epub we can specify where the file should go
         /// </summary>
@@ -364,6 +364,61 @@ namespace SendTextAway
             get { return template; }
             set { template = value; }
         }
+
+		public static ControlFile Default {
+			get {
+
+				ControlFile returnControl = new ControlFile();
+
+
+				// MAIN CANDIATES
+				//*MAJOR*
+				returnControl.BodyText = "Body Text Courier";
+				returnControl.UnderlineShouldBeItalicInstead = false;
+				returnControl.UnderscoreKeep = false;
+				returnControl.Template="standardmanuscript.dotx";
+
+				//OTHER STUFF
+
+				returnControl.Bullet = "List Bullet";
+				returnControl.BulletNumber = "List Number";
+				returnControl.FancyCharacters = false;
+
+				returnControl.ChatMode = 0;
+				returnControl.ConverterType = convertertype.word;
+				returnControl.Description = "For standard story subs like Analog and Asimov";
+				returnControl.EndMessage = "REMEMBER to put space between Address and Title (about 1/3 page)";
+				returnControl.Optional = "(Optional)";
+
+				returnControl.OptionalCode = 1;
+				returnControl.RemoveExcessSpaces  = false;
+				returnControl.RemoveTabs = false;
+				returnControl.SceneBreak = "#";
+				returnControl.SceneBreakHasTab = true;
+
+				returnControl.ShowFootNoteChapter = false;
+
+				returnControl.ChapterTitle = "Heading Document Top";
+				returnControl.FixNumberList = new string[0];
+
+				returnControl.Heading1  = "Heading2 Black Bar";
+				returnControl.Heading2 = "Heading3 Lined";
+				returnControl.Heading3 = "Heading3 Lined";
+				returnControl.Heading4 = "Heading3 Lined";
+				returnControl.Heading5 = "Heading4";
+
+				returnControl.MultiLineFormats = new string[4] {"code","quote", "note", "past"};
+				returnControl.MultiLineFormatsValues = new string[4] {"Example", "Subtitle", "Subtitle", "bodytext2past_underline"};
+
+				returnControl.TableStyle = "Table Grid 2";
+
+				// build programmatically the 'standard' object
+
+
+
+				return returnControl;
+			}
+		}
         #endregion
 
     }

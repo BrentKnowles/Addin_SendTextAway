@@ -4,7 +4,7 @@ using System.Text;
 using System.IO;
 using CoreUtilities;
 using System.Collections;
-
+// note: I started trying to fix this but instead created a new class to correct issues
 namespace SendTextAway
 {
     /// <summary>
@@ -12,7 +12,7 @@ namespace SendTextAway
     /// 
    
     /// </summary>
-    class sendePub : sendPlainText
+    public class sendePub : sendPlainText
     {
         string ZIP7 = "";//@"C:\Program Files\7-Zip\7z.exe";
         string directory_to_sourcefiles ="";// @"C:\Users\Brent\Documents\Visual Studio 2005\Projects\SendTextAway\SendTextAway\bin\Debug\epubfiles\";
@@ -25,18 +25,25 @@ namespace SendTextAway
         private Hashtable ids;
 
 
-        
+        public static string GetDateDirectory {
+			get { return DateTime.Today.ToString("yyyy MM dd");}
+		}
 
           /// <summary>
         /// before whatever initial operations are required to open the filestream
         /// or whatever (in the case of Word Auto, will require global variables)
         /// </summary>
-        protected override void InitializeDocument(ControlFile _controlFile)
-        {
-            directory_to_sourcefiles = _controlFile.TemplateDirectory;
-            ZIP7 = _controlFile.Zipper;
+        protected override int InitializeDocument (ControlFile _controlFile)
+		{
+			directory_to_sourcefiles = _controlFile.TemplateDirectory;
+			ZIP7 = _controlFile.Zipper;
+
+			if (null == ZIP7 || Constants.BLANK == ZIP7 || null == directory_to_sourcefiles || Constants.BLANK == directory_to_sourcefiles) {
+				NewMessage.Show (Loc.Instance.GetString ("To generate an epub you need to specificy a valid path to 7Zip and to the template files used to generate the final epub files"));
+				return -1;
+			}
             // create an output directory based on date
-            sDirectory = Path.Combine(_controlFile.OutputDirectory, DateTime.Today.ToString("yyyy MM dd"));
+            sDirectory = Path.Combine(_controlFile.OutputDirectory, GetDateDirectory);
             Directory.CreateDirectory(sDirectory);
             File.Copy(Path.Combine(directory_to_sourcefiles, "mimetype"), Path.Combine(sDirectory, "mimetype"), true);
 
@@ -69,6 +76,8 @@ namespace SendTextAway
             FootnoteChapterIAmInHash = new Hashtable();
             ids = new Hashtable();
 
+
+			return 1;
         }
 
 
@@ -135,7 +144,8 @@ namespace SendTextAway
             // close off any paragraph tabs
             for (int i = 1; i <= TabParagraph; i++)
             {
-                InlineWrite("</p>");
+             //March 2013 - trying to remove  
+				InlineWrite("</p>");
             }
             TabParagraph = 0;
             base.CloseCurrentFile();
@@ -173,11 +183,27 @@ namespace SendTextAway
             {
                 if (TabParagraph > 0 && false == adding_row_to_table)
                 {
-                    sLine = "</p><p>{0}";
+
+					// we have a tab
+					// if we also have a line mark, we close it off
+//					if (sText.IndexOf(Environment.NewLine) > -1)
+//					{
+//						sLine = "<p>{0}</p>";
+//					}
+//					else
+//					{
+//						sLine = "<p>{0}";
+//					}
+
+					//sLine ="{0}";
+					// March 2013
+					//sLine = "<p>{0}</p>";
+                    sLine = "</p><p>{0}"; //[the original]
                 }
                 else if (false == adding_row_to_table)
                 {
-                    sLine = "<p>{0}";
+                    //sLine = "<p>{0}</p>";
+					sLine = "<p>{0}";
                     TabParagraph++;
                 }
                 
@@ -359,10 +385,10 @@ namespace SendTextAway
             NeedParagraphClosing = true;
             switch (nAlignment)
             {
-
+				// February 2013 - does every P break require a closing because of the pattern I've already established?
                 case 0: file1.WriteLine("<p align=\"center\">"); break;
-                case 1: file1.WriteLine("<p align=\"left\">"); break;  
-                case 2: file1.WriteLine("<p align=\"right\">"); break;
+			case 1: file1.WriteLine("<p align=\"left\">"); break;  
+			case 2: file1.WriteLine("<p align=\"right\">"); break;
             }
         }
 
@@ -543,16 +569,22 @@ namespace SendTextAway
             currentFileBeingWritten = Path.Combine(sDirectory, String.Format("oebps\\Chapter_{0}.xhtml", chapter.ToString()));
             StartNewFile(currentFileBeingWritten);
         }
-
+		bool WeHadABold = false;
         protected override void InlineBold(int nValue)
         {
             if (nValue > 0)
             {
                 InlineWrite("<b>");
+				WeHadABold = true;
             }
             else
             {
+				if (true == WeHadABold)
+				{
+				WeHadABold = false;
+				//NewMessage.Show("Closing bold");
                 InlineWrite("</b>");
+				}
             }
         }
 
@@ -607,48 +639,48 @@ namespace SendTextAway
         /// <summary>
         /// at end?
         /// </summary>
-        protected override void Cleanup()
-        {
-            base.Cleanup();
+        protected override void Cleanup ()
+		{
+			base.Cleanup ();
 
            
-            // write out footnotes.xhtml
-            string footnotes = Path.Combine(sDirectory, String.Format("oebps\\footnotes.xhtml", chapter.ToString()));
-            StartNewFile(footnotes);
+			// write out footnotes.xhtml
+			string footnotes = Path.Combine (sDirectory, String.Format ("oebps\\footnotes.xhtml", chapter.ToString ()));
+			StartNewFile (footnotes);
             
-            if (footnotesincurrentsection.Count > 0)
-            {
-                InlineWrite("<hr></hr><h3>Footnotes</h3>");
+			if (footnotesincurrentsection.Count > 0) {
+				InlineWrite ("<hr></hr><h3>Footnotes</h3>");
 
-                // write out footnotes for current section
-                int count = 0;
-                foreach (string s in footnotesincurrentsection)
-                {
-                    count++;
-                    InlineWrite("<strong>[" + count.ToString() + "] </strong>");
-                    AddActualFootnote(s);
-                }
-            }
+				// write out footnotes for current section
+				int count = 0;
+				foreach (string s in footnotesincurrentsection) {
+					count++;
+					InlineWrite ("<strong>[" + count.ToString () + "] </strong>");
+					AddActualFootnote (s);
+				}
+			}
 
-            CloseCurrentFile();
+			CloseCurrentFile ();
 
-            CreateContentOPF();
+			CreateContentOPF ();
 
-            if (File.Exists(ZIP7) == true)
-            {
-            // now we write out a batch file
-            string zipfile = Path.Combine(directory_to_sourcefiles,"lastzip.bat");
-                string sourcepath = sDirectory;
-                string zippath = sDirectory + ".epub";
-                ///<img alt="--" title="" src="images/fleuron.png" width="275" height="20"></img>
-            StreamWriter zip = new StreamWriter(zipfile);
-                string scommand = String.Format("\"{0}\" a -tzip \"{1}\" \"{2}\"", ZIP7, zippath, sourcepath);
-            zip.WriteLine(scommand);
-            zip.Close();
-            // runbatch
-            General.OpenDocument(zipfile,"");
-            }
-            NewMessage.Show("Done!");
+			if (File.Exists (ZIP7) == true) {
+				// now we write out a batch file
+				string zipfile = Path.Combine (directory_to_sourcefiles, "lastzip.bat");
+				string sourcepath = sDirectory;
+				string zippath = sDirectory + ".epub";
+				///<img alt="--" title="" src="images/fleuron.png" width="275" height="20"></img>
+				StreamWriter zip = new StreamWriter (zipfile);
+				string scommand = String.Format ("\"{0}\" a -tzip \"{1}\" \"{2}\"", ZIP7, zippath, sourcepath);
+				zip.WriteLine (scommand);
+				zip.Close ();
+				// runbatch
+				General.OpenDocument (zipfile, "");
+			}
+
+			if (false == SuppressMessages) {
+				NewMessage.Show ("Done!");
+			}
            /* // update the table of contents if present
             if (oDoc.TablesOfContents.Count > 0)
             {
@@ -795,6 +827,9 @@ namespace SendTextAway
                 ids.Add(id, idtext);
             }
         }
-
+		public override string ToString ()
+		{
+			return string.Format ("[sendePub]");
+		}
     }
 }

@@ -6,7 +6,6 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
-using ADD_SendTextAway;
 
 using Word = NetOffice.WordApi;
 //using Word = Microsoft.Office.Interop.Word;

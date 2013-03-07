@@ -60,7 +60,7 @@ namespace SendTextAway
         /// before whatever initial operations are required to open the filestream
         /// or whatever (in the case of Word Auto, will require global variables)
         /// </summary>
-        protected override void InitializeDocument(ControlFile _controlFile)
+        protected override int InitializeDocument(ControlFile _controlFile)
         {
             //create a word object instead of globals, ie., WOrd(ControlFIle)
             base.InitializeDocument(_controlFile);
@@ -94,7 +94,7 @@ namespace SendTextAway
             catch (Exception ex)
             {
                 System.Windows.Forms.MessageBox.Show(ex.ToString());
-
+				return -1;
             }
 
             // test if style exists before being used
@@ -122,6 +122,9 @@ namespace SendTextAway
             {
                 NewMessage.Show(oStyle.ToString() + " did not exist"); 
             }*/
+
+
+			return 1;
         }
 
         /// <summary>
@@ -1039,7 +1042,10 @@ namespace SendTextAway
             }
             return (retArray);
         }
-
+		public override string ToString ()
+		{
+			return string.Format ("[sendWord]");
+		}
     }
 }
 

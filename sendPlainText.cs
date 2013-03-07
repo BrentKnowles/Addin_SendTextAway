@@ -9,14 +9,14 @@ namespace SendTextAway
     /// <summary>
     /// probably never used but exports a basic text file
     /// </summary>
-    class sendPlainText : sendBase
+    public class sendPlainText : sendBase
     {
         protected StreamWriter file1;
         protected string currentFileBeingWritten = "";
 
         protected ArrayList files; // this will be used to list the files for the TOC (by default will also include legal and copyright
 
-        protected override void InitializeDocument(ControlFile _controlFile)
+        protected override int InitializeDocument(ControlFile _controlFile)
         {
             files = new ArrayList();
             base.InitializeDocument(_controlFile);
@@ -29,7 +29,7 @@ namespace SendTextAway
 
             StartNewFile(currentFileBeingWritten);
 
-
+			return 1;
            
 
         }
@@ -103,10 +103,17 @@ namespace SendTextAway
         /// <summary>
         /// at end?
         /// </summary>
-        protected override void Cleanup()
-        {
-            base.Cleanup();
-            CloseCurrentFile();
+        protected override void Cleanup ()
+		{
+			base.Cleanup ();
+			CloseCurrentFile ();
+			if (false == SuppressMessages) {
+				CoreUtilities.NewMessage.Show (CoreUtilities.Loc.Instance.GetStringFmt ("{0} Has been written out", currentFileBeingWritten));
+			}
         }
+		public override string ToString ()
+		{
+			return string.Format ("[sendPlainText]");
+		}
     }
 }

@@ -36,13 +36,13 @@
     <Compile Include="ControlFile.cs" />
     <Compile Include="fMainSendText.cs" />
     <Compile Include="fMainSendText.designer.cs" />
-    <Compile Include="fPicker.cs" />
-    <Compile Include="fPicker.Designer.cs" />
     <Compile Include="sendBase.cs" />
     <Compile Include="sendePub.cs" />
     <Compile Include="sendPlainText.cs" />
     <Compile Include="sendWord.cs" />
-    <Compile Include="YomParse.cs" />
+    <Compile Include="NoteDataXML_SendIndex.cs" />
+    <Compile Include="ControlFilePropertyEditForm.cs" />
+    <Compile Include="sendePub2.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.ComponentModel.Composition" />
@@ -72,6 +72,14 @@
     <ProjectReference Include="..\..\yom2013B\MEF_Interfaces\MEF_Interfaces.csproj">
       <Project>{2E366A51-224A-4C3B-90D6-FE8C81C9EB78}</Project>
       <Name>MEF_Interfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Addin_YourothermindMarkup\Addin_YourothermindMarkup.csproj">
+      <Project>{A04A0908-E383-4ED9-9DBA-FB1B63041CB4}</Project>
+      <Name>Addin_YourothermindMarkup</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\yom2013B\Layout\Layout.csproj">
+      <Project>{DA1AA77A-D94D-4F79-AC96-7BC9AF0AFB34}</Project>
+      <Name>Layout</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>
