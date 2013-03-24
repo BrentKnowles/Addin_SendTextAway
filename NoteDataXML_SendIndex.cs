@@ -119,9 +119,8 @@ namespace MefAddIns
 			int selected = 0;
 			ControlFile.convertertype[] vals = (ControlFile.convertertype[])Enum.GetValues (typeof(ControlFile.convertertype));
 			for (int i = 0; i < vals.Length; i++) {
-				ComboTypeOfSend.Items.Add (vals[i]);
-				if (vals[i].ToString () == ConverterType.ToString ())
-				{
+				ComboTypeOfSend.Items.Add (vals [i]);
+				if (vals [i].ToString () == ConverterType.ToString ()) {
 					selected = i;
 				}
 			}
@@ -131,86 +130,88 @@ namespace MefAddIns
 			//ComboTypeOfSend.SelectedValue = ConverterType.ToString();
 			//ComboTypeOfSend.DataBindings();
 			//ComboTypeOfSend.SelectedIndex = (int)ConverterType;
-			ComboTypeOfSend.SelectedIndexChanged+= HandleSelectedConverterTypeIndexChanged;
+			ComboTypeOfSend.SelectedIndexChanged += HandleSelectedConverterTypeIndexChanged;
 
 
-			Label Underscores = new Label();
+			Label Underscores = new Label ();
 			Underscores.Dock = DockStyle.Fill;
 			Underscores.Text = Loc.Instance.GetString ("Underscores...");
 
-			CheckBox UnderscoresAsUnderline = new CheckBox();
+			CheckBox UnderscoresAsUnderline = new CheckBox ();
 			UnderscoresAsUnderline.Dock = DockStyle.Top;
 			UnderscoresAsUnderline.Width = 300;
 			UnderscoresAsUnderline.Text = "Become Underline";
 			UnderscoresAsUnderline.Checked = UnderscoresUnderline;
-			Tipster.SetToolTip(UnderscoresAsUnderline, "If true underscore text will be underlined otherwise it will be in italics.");
+			Tipster.SetToolTip (UnderscoresAsUnderline, "If true underscore text will be underlined otherwise it will be in italics.");
 
 
 			//Underscores.AutoSize = true;
-			CheckBox UnderscoreKeep = new CheckBox();
+			CheckBox UnderscoreKeep = new CheckBox ();
 			UnderscoreKeep.Dock = DockStyle.Top;
 			UnderscoreKeep.Text = Loc.Instance.GetString ("Keep Underscores");
-			UnderscoreKeep.Checked=UnderscoresRule;
-			Tipster.SetToolTip(UnderscoreKeep, Loc.Instance.GetString ("If set to true then underscores will always show up as underscore, no matter the other settings."));
-			UnderscoreKeep.Click+= (object sender, EventArgs e) => UnderscoresRule= (sender as CheckBox).Checked;
+			UnderscoreKeep.Checked = UnderscoresRule;
+			Tipster.SetToolTip (UnderscoreKeep, Loc.Instance.GetString ("If set to true then underscores will always show up as underscore, no matter the other settings."));
+			UnderscoreKeep.Click += (object sender, EventArgs e) => UnderscoresRule = (sender as CheckBox).Checked;
 
-			UnderscoresAsUnderline.Click+= (object sender, EventArgs e) => UnderscoresUnderline = (sender as CheckBox).Checked;
+			UnderscoresAsUnderline.Click += (object sender, EventArgs e) => UnderscoresUnderline = (sender as CheckBox).Checked;
 
 
-			Label BodyTextLabel = new Label();
+			Label BodyTextLabel = new Label ();
 			BodyTextLabel.Dock = DockStyle.Fill;
 			BodyTextLabel.Text = Loc.Instance.GetString ("Body Text");
 
-			TextBox BodyTextText = new TextBox();
+			TextBox BodyTextText = new TextBox ();
 			BodyTextText.Text = BodyText;
 			BodyTextText.Dock = DockStyle.Fill;
-			BodyTextText.TextChanged+= (object sender, EventArgs e) => BodyText = (sender as TextBox).Text;
+			BodyTextText.TextChanged += (object sender, EventArgs e) => BodyText = (sender as TextBox).Text;
 			BodyTextText.Width = 200; 
 
-			Label TemplateLabel = new Label();
+			Label TemplateLabel = new Label ();
 			TemplateLabel.Dock = DockStyle.Fill;
 			TemplateLabel.Text = Loc.Instance.GetString ("Template");
 
-			TextBox TemplateTextBox = new TextBox();
+			TextBox TemplateTextBox = new TextBox ();
 			TemplateTextBox.Text = TemplateText;
 			TemplateTextBox.Dock = DockStyle.Fill;
-			Tipster.SetToolTip(TemplateTextBox, Loc.Instance.GetString ("This is the Word template file, if generating a word document this will be the template used"));
-			TemplateTextBox.TextChanged+= (object sender, EventArgs e) => TemplateText = (sender as TextBox).Text;
+			Tipster.SetToolTip (TemplateTextBox, Loc.Instance.GetString ("This is the Word template file, if generating a word document this will be the template used"));
+			TemplateTextBox.TextChanged += (object sender, EventArgs e) => TemplateText = (sender as TextBox).Text;
 			TemplateTextBox.Width = 200;
 
 			// invokes a modal PropertyGrid for editing the entire fille
-			Button EditAll = new Button();
-			EditAll.Text  = Loc.Instance.GetString ("Edit All Details");
-			EditAll.Click+= HandleEditAllClick;
+			Button EditAll = new Button ();
+			EditAll.Text = Loc.Instance.GetString ("Edit All Details");
+			EditAll.Click += HandleEditAllClick;
 			EditAll.Dock = DockStyle.Fill;
 
-			TablePanel.Controls.Add (TypeOfSend, 0,0);
-			TablePanel.Controls.Add (ComboTypeOfSend, 1,0);
+			TablePanel.Controls.Add (TypeOfSend, 0, 0);
+			TablePanel.Controls.Add (ComboTypeOfSend, 1, 0);
 
-			TablePanel.Controls.Add (Underscores, 0,1);
-			TablePanel.Controls.Add (UnderscoresAsUnderline, 1,1);
-			TablePanel.Controls.Add (UnderscoreKeep, 1,2);
+			TablePanel.Controls.Add (Underscores, 0, 1);
+			TablePanel.Controls.Add (UnderscoresAsUnderline, 1, 1);
+			TablePanel.Controls.Add (UnderscoreKeep, 1, 2);
 
-			TablePanel.Controls.Add (BodyTextLabel, 0,3);
-			TablePanel.Controls.Add (BodyTextText, 1,3);
+			TablePanel.Controls.Add (BodyTextLabel, 0, 3);
+			TablePanel.Controls.Add (BodyTextText, 1, 3);
 
-			TablePanel.Controls.Add (TemplateLabel, 0,4);
-			TablePanel.Controls.Add (TemplateTextBox, 1,4);
+			TablePanel.Controls.Add (TemplateLabel, 0, 4);
+			TablePanel.Controls.Add (TemplateTextBox, 1, 4);
 
-			TablePanel.Controls.Add (EditAll, 1,5);
+			TablePanel.Controls.Add (EditAll, 1, 5);
 
 //			TablePanel.ColumnStyles[0].SizeType  = SizeType.Percent;;
 //			TablePanel.ColumnStyles[0].Width = 25;
 //
 //			TablePanel.ColumnStyles[1].SizeType  = SizeType.Percent;;
 //			TablePanel.ColumnStyles[1].Width = 75;
-			foreach (ColumnStyle style in TablePanel.ColumnStyles) {
-				NewMessage.Show (style.ToString());
-				style.SizeType = SizeType.Percent;
-				style.Width = 50;
-			}
+//			foreach (ColumnStyle style in TablePanel.ColumnStyles) {
+//			//	NewMessage.Show (style.ToString());
+//				style.SizeType = SizeType.Percent;
+//				style.Width = 50;
+//			}
 
-			
+			if (richBox.Text == Constants.BLANK) {
+				richBox.Text = Loc.Instance.GetStringFmt("[[index]]{0}Enter Page Name Here Followed By Line Space{0}", Environment.NewLine);
+			}
 			richBox.BringToFront();
 			
 		}

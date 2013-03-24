@@ -46,9 +46,13 @@ namespace MefAddIns
 		
 		public void ActionWithParamForNoteTextActions (object param)
 		{
+			if (!(LayoutDetails.Instance.CurrentLayout.CurrentTextNote is NoteDataXML_SendIndex)) {
+				NewMessage.Show (Loc.Instance.GetString ("You must use an Index file to send text to the sendaway system, even for individual notes."));
+				return;
+			}
 
 			if (LayoutDetails.Instance.CurrentLayout != null && LayoutDetails.Instance.CurrentLayout.CurrentTextNote != null 
-			    && LayoutDetails.Instance.CurrentLayout.CurrentTextNote is NoteDataXML_SendIndex) {
+			    ) {
 
 				sendBase SendAwayIt = null;
 
@@ -92,7 +96,7 @@ namespace MefAddIns
 				// will be used by this one
 				//NewMessage.Show("SendAway " + param.ToString());
 			} else {
-				NewMessage.Show (Loc.Instance.GetString ("Please select a text note before using Send Text Away"));
+				NewMessage.Show (Loc.Instance.GetString ("Please select a text note before using Send Text Away."));
 			}
 		}
 		
@@ -112,7 +116,7 @@ namespace MefAddIns
 		public override void RegisterType()
 		{
 
-			Layout.LayoutDetails.Instance.AddToList(typeof(NoteDataXML_SendIndex), Loc.Instance.GetString ("Send Away Index"));
+			Layout.LayoutDetails.Instance.AddToList(typeof(NoteDataXML_SendIndex), Loc.Instance.GetStringFmt("Send Away Index"));
 		}
 		public override string dependencyguid {
 			get {
@@ -130,7 +134,7 @@ namespace MefAddIns
 			{
 				PlugInAction action = new PlugInAction();
 		//		action.HotkeyNumber = -1;
-				action.MyMenuName = "Send Text Away";
+				action.MyMenuName = String.Format ("{0} ({1})","Send Text Away", "Requires Valid Markup");// LayoutDetails.Instance.GetCurrentMarkup().ToString ());
 				action.ParentMenuName = "";
 				action.IsOnContextStrip = false;
 				action.IsOnAMenu = false;
