@@ -61,7 +61,9 @@ namespace MefAddIns
 		}
 		public string Version
 		{
-			get { return @"1.0.0.1"; }
+			// Version History
+			// 1.0.1.0 - adding <game> tagging
+			get { return @"1.0.1.0"; }
 		}
 		public string Description
 		{
@@ -71,21 +73,21 @@ namespace MefAddIns
 		{
 			get { return @"Send Text Away"; }
 		}
-		
-		public void ActionWithParamForNoteTextActions (object param)
+
+		public static void GenerateFile(object param)
 		{
 			if (!(LayoutDetails.Instance.CurrentLayout.CurrentTextNote is NoteDataXML_SendIndex)) {
 				NewMessage.Show (Loc.Instance.GetString ("You must use an Index file to send text to the sendaway system, even for individual notes."));
 				return;
 			}
-
+			
 			if (LayoutDetails.Instance.CurrentLayout != null && LayoutDetails.Instance.CurrentLayout.CurrentTextNote != null 
 			    ) {
-
+				
 				sendBase SendAwayIt = null;
-
+				
 				ControlFile.convertertype TypeOfConverted = ((NoteDataXML_SendIndex) LayoutDetails.Instance.CurrentLayout.CurrentTextNote).Controller.ConverterType;
-
+				
 				if (TypeOfConverted == ControlFile.convertertype.word)
 				{
 					SendAwayIt = new sendWord();
@@ -98,8 +100,8 @@ namespace MefAddIns
 				{
 					SendAwayIt = new sendPlainText();
 				}
-
-
+				
+				
 				// error correction
 				if (Constants.BLANK==((NoteDataXML_SendIndex) LayoutDetails.Instance.CurrentLayout.CurrentTextNote).Controller.OutputDirectory ||
 				    null == ((NoteDataXML_SendIndex) LayoutDetails.Instance.CurrentLayout.CurrentTextNote).Controller.OutputDirectory)
@@ -107,25 +109,30 @@ namespace MefAddIns
 					string outputpath = Path.Combine(LayoutDetails.Instance.Path, "sendawayoutput");
 					((NoteDataXML_SendIndex) LayoutDetails.Instance.CurrentLayout.CurrentTextNote).Controller.OutputDirectory = outputpath;
 				}
-
+				
 				if (Directory.Exists (((NoteDataXML_SendIndex) LayoutDetails.Instance.CurrentLayout.CurrentTextNote).Controller.OutputDirectory ) == false)
 				{
 					Directory.CreateDirectory(((NoteDataXML_SendIndex) LayoutDetails.Instance.CurrentLayout.CurrentTextNote).Controller.OutputDirectory );
 				}
-
-//				ControlFile Control = new ControlFile ();
-//
-//				Control = (ControlFile)FileUtils.DeSerialize (@"C:\Users\BrentK\Documents\Keeper\SendTextAwayControlFiles\standardsub.xml", typeof(ControlFile));
-//				if (Control != null) {
+				
+				//				ControlFile Control = new ControlFile ();
+				//
+				//				Control = (ControlFile)FileUtils.DeSerialize (@"C:\Users\BrentK\Documents\Keeper\SendTextAwayControlFiles\standardsub.xml", typeof(ControlFile));
+				//				if (Control != null) {
 				//NewMessage.Show ("Convering with " + ((NoteDataXML_SendIndex) LayoutDetails.Instance.CurrentLayout.CurrentTextNote).Controller.ConverterType.ToString());
 				SendAwayIt.WriteText (param.ToString (), ((NoteDataXML_SendIndex) LayoutDetails.Instance.CurrentLayout.CurrentTextNote).Controller, -1);
-			
+				
 				//}
 				// will be used by this one
 				//NewMessage.Show("SendAway " + param.ToString());
 			} else {
 				NewMessage.Show (Loc.Instance.GetString ("Please select a text note before using Send Text Away."));
 			}
+		}
+
+		public void ActionWithParamForNoteTextActions (object param)
+		{
+			GenerateFile(param);
 		}
 		
 		public void RespondToMenuOrHotkey<T>(T form) where T: System.Windows.Forms.Form, MEF_Interfaces.iAccess 
@@ -153,9 +160,14 @@ namespace MefAddIns
 			}
 		}
 
+		public static string BuildFileName()
+		{
+			return System.IO.Path.Combine (System.IO.Path.GetTempPath (), Guid.NewGuid().ToString () + ".txt");
+		}
+
 		public override string BuildFileNameForActionWithParam ()
 		{
-			return  System.IO.Path.Combine (System.IO.Path.GetTempPath (), Guid.NewGuid().ToString () + ".txt");
+			return  BuildFileName();
 		}
 		public PlugInAction CalledFrom { 
 			get

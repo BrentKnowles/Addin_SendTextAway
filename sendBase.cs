@@ -140,6 +140,31 @@ namespace SendTextAway
                     }
 
 
+				if (zcontrolfile.ListOfTags != null && zcontrolfile.ListOfTags.Length > 0)
+				{
+					foreach (string tag in zcontrolfile.ListOfTags)
+					{
+						// process each tag
+						string[] tags = tag.Split (new char[1] {'|'});
+						if (tags != null && 2 == tags.Length)
+						{
+							string inner_tag= tags[0];
+							string format = tags[1];
+							string buildtag_front = String.Format ("<{0}>", inner_tag);
+							string buildtag_end = String.Format ("</{0}>", inner_tag);
+
+							// April 2013
+							// experimenting with inline tagging
+							sText = sText.Replace (buildtag_front, format);
+							sText = sText.Replace (buildtag_end, format);
+						}
+					}
+				}
+
+			
+
+
+
                     // January 2012
                     // We have an issue when saving as HTML that my fancy heading text
                     // becomes really ugly UNDERLINES
@@ -651,11 +676,22 @@ namespace SendTextAway
 
 
                                                     else
+						{
+							// March 2013 - trying to allow variable replacement within an URL to clean up
+							// image management within a text
+							if (sBoldText.IndexOf("~var") > -1)
+							{
+								// swap in variable
+								
+								sBoldText = VariableSwap(sBoldText);
+							}
                                                         if (CoreUtilities.General.IsGraphicFile(sBoldText) == true)
                                                         {
                                                             AddPicture(sBoldText);
                                                             sBoldText = ""; // blank thte text
                                                         }
+
+						}
                                             }
                                             else if (sFrontTag == "[[")
                                             {
@@ -1297,6 +1333,7 @@ namespace SendTextAway
                 string sValue = sAdd.Substring(nColon+1, sAdd.Length - nColon-1).Trim();
                // System.Windows.Forms.MessageBox.Show(sKey + " " + sValue);
                 variableTable.Add(sKey, sValue);
+			//	NewMessage.Show (String.Format ("Adding key {0} with value {1}.", sKey, sValue));
             }
 
 
@@ -1332,7 +1369,7 @@ namespace SendTextAway
                 }
                 else
                 {
-                    sValue = "ERROR CANNOT FIND VARIABLE" + sKey;
+					sValue = String.Format ("ERROR CANNOT FIND VARIABLE <{0}>",sKey);
                 }
                 //System.Windows.Forms.MessageBox.Show(sKey);
             }

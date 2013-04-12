@@ -125,7 +125,7 @@ namespace MefAddIns
 
 
 			TablePanel.Height = 200;
-			TablePanel.RowCount = 4;
+			TablePanel.RowCount = 5;
 			TablePanel.ColumnCount = 2;
 			TablePanel.Dock = DockStyle.Top;
 			ParentNotePanel.Controls.Add (TablePanel);
@@ -224,6 +224,15 @@ namespace MefAddIns
 			TablePanel.Controls.Add (TemplateLabel, 0, 4);
 			TablePanel.Controls.Add (TemplateTextBox, 1, 4);
 
+
+			Button Generate = new Button();
+			Generate.Dock = DockStyle.Fill;
+			Generate.Click+= HandleGenerateClick;
+			Generate.Text = Loc.Instance.GetString ("Generate");
+
+			TablePanel.Controls.Add (Generate, 0, 5);
+
+
 			TablePanel.Controls.Add (EditAll, 1, 5);
 
 //			TablePanel.ColumnStyles[0].SizeType  = SizeType.Percent;;
@@ -242,6 +251,34 @@ namespace MefAddIns
 			}
 			richBox.BringToFront();
 			
+		}
+
+		/// <summary>
+		/// A shortcut button to 'send away'
+		/// </summary>
+		/// <param name='sender'>
+		/// Sender.
+		/// </param>
+		/// <param name='e'>
+		/// E.
+		/// </param>
+		void HandleGenerateClick (object sender, EventArgs e)
+		{
+			if (LayoutDetails.Instance.CurrentLayout != null && LayoutDetails.Instance.CurrentLayout.CurrentTextNote != null) {
+				// this is tricky because the noteaction operation took care of writing the file so we need to repeat this.
+
+				string FileToSaveTo = MefAddIns.Addin_SendTextAway.BuildFileName ();
+
+
+				string[] lines = LayoutDetails.Instance.CurrentLayout.CurrentTextNote.Lines ();
+				if (lines.Length > 0) {
+					LayoutDetails.Instance.SaveTextLineToFile (lines, FileToSaveTo);
+					// now process  saved text
+					MefAddIns.Addin_SendTextAway.GenerateFile (FileToSaveTo);
+				}
+
+
+			}
 		}
 
 		void HandleEditAllClick (object sender, EventArgs e)
@@ -281,8 +318,19 @@ namespace MefAddIns
 		{
 			return Loc.Instance.GetString("Send Away Index");
 		}
-		
-		
+
+		public NoteDataXML_SendIndex(NoteDataInterface Note) : base(Note)
+		{
+			
+		}
+		public override void CopyNote (NoteDataInterface Note)
+		{
+			base.CopyNote (Note);
+			if (Note is NoteDataXML_SendIndex) {
+				this.CopyObject ((Note as NoteDataXML_SendIndex).Controller, this.Controller);
+
+			}
+		}
 		
 	}
 }

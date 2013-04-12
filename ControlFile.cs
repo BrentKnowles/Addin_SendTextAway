@@ -323,6 +323,29 @@ namespace SendTextAway
             get { return fixnumberlist; }
             set { fixnumberlist = value; }
         }
+
+
+		private string[] listOfTags=null;
+		/// <summary>
+		/// Gets or sets the list of tags.
+		/// 
+		/// This are of the format of tag (without punctuation) | format code to use
+		/// Basic string replacement occurs before processing.
+		/// 
+		/// So:
+		/// 
+		/// game|'''
+		/// would replace text enclosed in <game>this</game> with '''this'''
+		/// 
+		/// </summary>
+		/// <value>
+		/// The list of tags.
+		/// </value>
+		public string[] ListOfTags {
+			get { return listOfTags;}
+			set { listOfTags = value;}
+		}
+
         private string heading1;
         public string Heading1
         {
@@ -433,7 +456,7 @@ namespace SendTextAway
 				returnControl.Heading2 = "Heading3 Lined";
 				returnControl.Heading3 = "Heading3 Lined";
 				returnControl.Heading4 = "Heading3 Lined";
-				returnControl.Heading5 = "Heading4";
+				returnControl.Heading5 = "Heading 4";
 
 				returnControl.MultiLineFormats = new string[4] {"code","quote", "note", "past"};
 				returnControl.MultiLineFormatsValues = new string[4] {"Example", "Subtitle", "Subtitle", "bodytext2past_underline"};
