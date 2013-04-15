@@ -115,7 +115,7 @@ namespace SendTextAway
                 }
                 else if (zcontrolFile.ConverterType == ControlFile.convertertype.epub)
                 {
-                    s = new sendePub();
+                    s = new sendePub2();
                 }
                  sError = s.WriteText(sFile, zcontrolFile, stopat);
                 textBoxErrors.Text = sError;

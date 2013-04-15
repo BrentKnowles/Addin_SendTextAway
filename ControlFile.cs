@@ -404,7 +404,16 @@ namespace SendTextAway
             set { chaptertitle = value; }
         }
 
-
+		private bool convertToEmDash = false;
+		// if true will convert -- to emdash
+		public bool ConvertToEmDash {
+			get {
+				return convertToEmDash;
+			}
+			set {
+				convertToEmDash = value;
+			}
+		}
 
         private string template;
         /// <summary>

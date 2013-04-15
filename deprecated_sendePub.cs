@@ -40,7 +40,7 @@ namespace SendTextAway
     /// 
    
     /// </summary>
-    public class sendePub : sendPlainText
+    public class deprecated_sendePub : sendPlainText
     {
         string ZIP7 = "";//@"C:\Program Files\7-Zip\7z.exe";
         string directory_to_sourcefiles ="";// @"C:\Users\Brent\Documents\Visual Studio 2005\Projects\SendTextAway\SendTextAway\bin\Debug\epubfiles\";

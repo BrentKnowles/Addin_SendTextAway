@@ -1074,6 +1074,41 @@ namespace SendTextAway
 		{
 			return string.Format ("[sendWord]");
 		}
+		protected override string HandleEmDash (string sText)
+		{
+			return sText.Replace ("--",  "\x2014");
+		}
+		protected override string ReplaceFancyCharacters (string sSource)
+		{
+			if (true == controlFile.FancyCharacters)
+			{
+				
+				sSource = sSource.Replace(".\"", ".\x201D");
+				
+				sSource = sSource.Replace("\".", "\x201D.");
+				
+				
+				sSource = sSource.Replace("!\"", "!\x201D");
+				sSource = sSource.Replace("?\"", "?\x201D");
+				sSource = sSource.Replace("--\"", "--\x201D");
+				
+				sSource = sSource.Replace("-\"", "-\x201D");
+				
+				sSource = sSource.Replace("-- \"", "-- \x201D");
+				sSource = sSource.Replace(",\"", ",\x201D");
+				// remainder of quotes will be the opposite way
+				sSource = sSource.Replace("\"", "\x201C");
+				
+				// do standard repalcements (February 2010)
+				if (sSource.IndexOf("...") > -1)
+				{
+					sSource = sSource.Replace("...", "\x2026");
+				}
+				
+				// to finish look here: http://www.unicode.org/charts/charindex.html
+			}
+			return sSource;
+		}
     }
 }
 

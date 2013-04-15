@@ -56,7 +56,41 @@ namespace SendTextAway
 		public static string GetDateDirectory {
 			get { return DateTime.Today.ToString("yyyy MM dd") ;}
 		}
-		
+		protected override string HandleEmDash (string sText)
+		{
+			return sText.Replace ("--", "&#8212;");
+		}
+		protected override string ReplaceFancyCharacters (string sSource)
+		{
+			if (true == controlFile.FancyCharacters)
+			{
+				
+				sSource = sSource.Replace(".\"", ".&#8221;");
+				
+				sSource = sSource.Replace("\".", "&#8221;.");
+				
+				
+				sSource = sSource.Replace("!\"", "!&#8221;");
+				sSource = sSource.Replace("?\"", "?&#8221;");
+				sSource = sSource.Replace("--\"", "--&#8221;");
+				
+				sSource = sSource.Replace("-\"", "-&#8221;");
+				
+				sSource = sSource.Replace("-- \"", "-- &#8221;");
+				sSource = sSource.Replace(",\"", ",&#8221;");
+				// remainder of quotes will be the opposite way
+				sSource = sSource.Replace("\"", "&#8220;");
+				
+				// do standard repalcements (February 2010)
+				if (sSource.IndexOf("...") > -1)
+				{
+					sSource = sSource.Replace("...", "&hellip;");
+				}
+				
+				// to finish look here: http://www.unicode.org/charts/charindex.html
+			}
+			return sSource;
+		}
 		/// <summary>
 		/// before whatever initial operations are required to open the filestream
 		/// or whatever (in the case of Word Auto, will require global variables)

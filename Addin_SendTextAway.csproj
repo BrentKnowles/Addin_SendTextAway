@@ -37,12 +37,12 @@
     <Compile Include="fMainSendText.cs" />
     <Compile Include="fMainSendText.designer.cs" />
     <Compile Include="sendBase.cs" />
-    <Compile Include="sendePub.cs" />
     <Compile Include="sendPlainText.cs" />
     <Compile Include="sendWord.cs" />
     <Compile Include="NoteDataXML_SendIndex.cs" />
     <Compile Include="ControlFilePropertyEditForm.cs" />
     <Compile Include="sendePub2.cs" />
+    <Compile Include="deprecated_sendePub.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.ComponentModel.Composition" />

@@ -82,6 +82,11 @@ namespace SendTextAway
         protected System.Collections.ArrayList bookmarks = null; // contain a list of links to cross reference in cleanup
         protected int _stopat = 0;
 
+		protected virtual string HandleEmDash (string sText)
+		{
+			return sText; 
+		}
+
         /// <summary>
         /// This routine will handle the parsing of the file and will call other functions
         /// that will be INHERITED by the child classes to actually handle the creation of the end documentation
@@ -161,7 +166,14 @@ namespace SendTextAway
 					}
 				}
 
-			
+
+				// April 2013
+				// replace -- with emdash if that's teh setting
+				if (controlFile.ConvertToEmDash == true)
+				{
+
+					sText = HandleEmDash(sText); 
+				}
 
 
 
@@ -178,19 +190,21 @@ namespace SendTextAway
                     }
 
 
-                    if (sText.IndexOf("---") > -1)
-                    {
-                        NewMessage.Show("You have three hyphens. Probably error. Quitting");
-                        return "";
-                    }
+//                    if (sText.IndexOf("---") > -1)
+//                    {
+//                        NewMessage.Show(Loc.Instance.GetString ("You have three hyphens. Probably error. Quitting"));
+//                        return "";
+//                    }
 
                     if (sText.IndexOf("\"'") > -1)
                     {
-                        throw new Exception("You have a \" mixed with a ' which is likely an error. Shutting down.");
+                    //    throw new Exception("You have a \" mixed with a ' which is likely an error. Shutting down.");
+					UpdateErrors ("Possible ERrors: " + sText);
                      }
                      if (sText.IndexOf("'\"") > -1)
                      {
-                         throw new Exception("You have a \" mixed with a ' which is likely an error. Shutting down.");
+                         //throw new Exception("You have a \" mixed with a ' which is likely an error. Shutting down.");
+					UpdateErrors ("Possible ERrors: " + sText);
                      }
 
                     // log common typos
@@ -422,35 +436,9 @@ namespace SendTextAway
         /// </summary>
         /// <param name="sSource"></param>
         /// <returns></returns>
-        protected string ReplaceFancyCharacters(string sSource)
+        protected virtual string ReplaceFancyCharacters(string sSource)
         {
-            if (true == controlFile.FancyCharacters)
-            {
-                
-                sSource = sSource.Replace(".\"", ".\x201D");
-
-                sSource = sSource.Replace("\".", "\x201D.");
             
-
-                sSource = sSource.Replace("!\"", "!\x201D");
-                sSource = sSource.Replace("?\"", "?\x201D");
-                sSource = sSource.Replace("--\"", "--\x201D");
-
-                sSource = sSource.Replace("-\"", "-\x201D");
-
-                sSource = sSource.Replace("-- \"", "-- \x201D");
-                sSource = sSource.Replace(",\"", ",\x201D");
-                // remainder of quotes will be the opposite way
-                sSource = sSource.Replace("\"", "\x201C");
-
-                // do standard repalcements (February 2010)
-                if (sSource.IndexOf("...") > -1)
-                {
-                    sSource = sSource.Replace("...", "\x2026");
-                }
-
-                // to finish look here: http://www.unicode.org/charts/charindex.html
-            }
             return sSource;
         }
 
