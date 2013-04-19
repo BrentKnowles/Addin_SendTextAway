@@ -264,8 +264,10 @@ namespace MefAddIns
 		/// </param>
 		void HandleGenerateClick (object sender, EventArgs e)
 		{
-			if (LayoutDetails.Instance.CurrentLayout != null && LayoutDetails.Instance.CurrentLayout.CurrentTextNote != null) {
+
+			if (LayoutDetails.Instance.CurrentLayout != null) {
 				// this is tricky because the noteaction operation took care of writing the file so we need to repeat this.
+				LayoutDetails.Instance.CurrentLayout.CurrentTextNote = this;
 
 				string FileToSaveTo = MefAddIns.Addin_SendTextAway.BuildFileName ();
 

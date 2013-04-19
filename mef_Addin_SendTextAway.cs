@@ -178,7 +178,10 @@ namespace MefAddIns
 				action.ParentMenuName = "";
 				action.IsOnContextStrip = false;
 				action.IsOnAMenu = false;
-				action.IsNoteAction = true;
+
+				// this is technically a note action but because I added the Generate button,
+				// I don't see the purpose of having two routes to this.
+				action.IsNoteAction = false;
 
 				action.QuickLinkShows = false;
 				action.IsANote = false;
