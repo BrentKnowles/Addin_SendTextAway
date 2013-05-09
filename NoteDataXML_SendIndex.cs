@@ -39,7 +39,7 @@ namespace MefAddIns
 	public class NoteDataXML_SendIndex  : Layout.NoteDataXML_RichText
 	{
 		public override int defaultHeight { get { return 500; } }
-		public override int defaultWidth { get { return 300; } }
+		public override int defaultWidth { get { return 500; } }
 		#region variables
 		public override bool IsLinkable { get { return false; }}
 		
@@ -250,7 +250,20 @@ namespace MefAddIns
 				richBox.Text = Loc.Instance.GetStringFmt("[[index]]{0}Enter Page Name Here Followed By Line Space{0}", Environment.NewLine);
 			}
 			richBox.BringToFront();
+
+
+			TablePanel.ColumnStyles.Clear();
+			for (int i = 0; i < TablePanel.ColumnCount; i++)
+			{
+				TablePanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50.0f));
+			}
 			
+			TablePanel.RowStyles.Clear();
+			for (int i = 0; i < TablePanel.RowCount; i++)
+			{
+				TablePanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+			}
+
 		}
 
 		/// <summary>
@@ -332,6 +345,15 @@ namespace MefAddIns
 				this.CopyObject ((Note as NoteDataXML_SendIndex).Controller, this.Controller);
 
 			}
+		}
+		protected override AppearanceClass UpdateAppearance ()
+		{
+			AppearanceClass app = base.UpdateAppearance ();
+			if (app != null) {
+				ParentNotePanel.BackColor = app.mainBackground;
+				ParentNotePanel.ForeColor = app.secondaryForeground;
+			}
+			return app;
 		}
 		
 	}

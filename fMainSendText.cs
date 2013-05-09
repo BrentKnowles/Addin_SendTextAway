@@ -202,130 +202,7 @@ namespace SendTextAway
         private void fMain_Load(object sender, EventArgs e)
         {
 
-         //TODO: Hook back up
-			/* 
-
-            PluginInformationOnTag INFO = ((PluginInformationOnTag)Application.OpenForms[0].Tag);
-            string sPlugInParameter = "";
-            if (null != INFO)
-            {
-                INFO.OnGetInfo(1,""); // runs the process
-                sPlugInParameter = INFO.OnGetInfo(2,"").ToString();
-
-            }
-
-
-            //string sPlugInParameter = (string)Application.OpenForms[0].Tag;
-            bool parameterfound = true;
-            if (sPlugInParameter != null && sPlugInParameter != "")
-            {
-                string[] sValue = sPlugInParameter.Split(new char[1] { '|' });
-                if (sValue.Length != 2)
-                {
-                    parameterfound = false;
-                }
-                else
-                {
-                    // we have two strings (path + preferred control file)
-                    //MessageBox.Show(sValue[0]);
-                    //MessageBox.Show(sValue[1]);
-                    int stopat = 0; // chapter to stop at (dec 11 2010)
-                    string sFile = sValue[0];
-                    string sControlFile = sValue[1];
-
-                    // but now we pop over to the fPicker and choose another control file
-                    fPicker picker = new fPicker(MyPath);
-                    picker.ControlFile = sControlFile;
-                    if (picker.ShowDialog() == DialogResult.OK)
-                    {
-                        // rebuild path to file
-                        sControlFile = Path.Combine(MyPath, picker.ControlFile);
-                        textBoxErrors.Text = Convert(sControlFile, sFile, stopat);// s.WriteText(sFile, sControlFile);
-
-
-                        if (textBoxErrors.Text == "")
-                        {
-                            Close();
-                        }
-                    }
-                    else
-                    {
-                        // if we cancel the Picker we close this main form
-                        Close();
-                    }
-
-
-
-                }
-            }
-            else
-            {
-                //we are not a plug-in so initialize the MessageBox
-                CoreUtilities.NewMessage.SetupBoxFirstTime(null, "",
-      ImageLayout.Stretch,
-  Color.AliceBlue, // transprency key  
-  new Font("Georgia", 12), new Font("Times", 10),
-  Color.Blue,  //button face color
-  Color.Black, // caption color
-  Color.Black, // message color
-  Color.Gray,  // back color for form
-  Color.Gray, // back color for caption (turns it into a proper captino heading)
-  Color.Gray); // back color for message);
-
-            }
-
-
-
-            if (false == parameterfound && Environment.GetCommandLineArgs().Length > 1)
-            {
-                int stopat = 0; // chapter to stop at (dec 11 2010)
-
-                string sFile = Environment.GetCommandLineArgs()[1];
-                string sControlFile = "";
-                if (Environment.GetCommandLineArgs().Length == 2)
-                {
-                   // MessageBox.Show("No control file passed in. Defaulting.");
-                    sControlFile = @"e:\controlnormal.xml";
-                }
-                else
-                {
-                    sControlFile = Environment.GetCommandLineArgs()[2];
-                }
-
-
-                // allow a length to be passed in?
-                if (Environment.GetCommandLineArgs().Length == 4)
-                {
-                    // stop at a particular chapter number - 1 (i.e., if a 4 passed in we stop at Chapter 3)
-                    stopat = Int32.Parse(Environment.GetCommandLineArgs()[3]);
-                }
-             
-               // sendBase s = new sendWord();
-
-
-
-                textBoxErrors.Text = Convert(sControlFile, sFile, stopat);// s.WriteText(sFile, sControlFile);
-
-
-                if (textBoxErrors.Text == "")
-                {
-                    Close();
-                }
-            }
-            else
-            {
-
-
-                string sDefault = "e:\\controlReilly.xml";
-                if (File.Exists(sDefault) == true)
-                {
-                    Filename = sDefault;
-                    propertyGrid1.SelectedObject = (ControlFile)CoreUtilities.General.DeSerialize(
-                        Filename, typeof(ControlFile));
-                }
-            }
-
-*/
+       
         }
 
         private void onlyToChapter2ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -354,10 +231,7 @@ namespace SendTextAway
 
         private void tasksToolStripMenuItem_Click(object sender, EventArgs e)
         {
-			/*TODO: hook up
-            ADD_Tasks.fTasks tasks = new ADD_Tasks.fTasks();
-            tasks.ShowDialog();
-            */
+
         }
     }
 }
