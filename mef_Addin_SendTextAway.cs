@@ -151,7 +151,8 @@ namespace MefAddIns
 		public override void RegisterType()
 		{
 
-			Layout.LayoutDetails.Instance.AddToList(typeof(NoteDataXML_SendIndex), Loc.Instance.GetStringFmt("Send Away Index"));
+			Layout.LayoutDetails.Instance.AddToList(typeof(NoteDataXML_SendIndex), Loc.Instance.GetStringFmt("Send Away Index"),
+			                                        PlugInBase.AddInFolderName);
 		}
 		public override string dependencyguid {
 			get {
