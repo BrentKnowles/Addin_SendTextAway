@@ -44,8 +44,9 @@ namespace SendTextAway
 	{
 		string ZIP7 = "";//@"C:\Program Files\7-Zip\7z.exe";
 		string directory_to_sourcefiles ="";// @"C:\Users\Brent\Documents\Visual Studio 2005\Projects\SendTextAway\SendTextAway\bin\Debug\epubfiles\";
-		
-		private bool NeedParagraphClosing; // used for centering. If true the next InlineWrite will write a </p> closing tag
+
+		private int NeedParagraphClosingCounter = 0;
+	//	private bool NeedParagraphClosing; // used for centering. If true the next InlineWrite will write a </p> closing tag
 		private string sDirectory = "";
 		
 		ArrayList footnotesincurrentsection; // footnotes can be chapter, or if I can figure out a good solution the entire document
@@ -58,10 +59,19 @@ namespace SendTextAway
 		}
 		protected override string HandleEmDash (string sText)
 		{
+			// we replace any existing ampersands with the code before applying Fancy
+
+				// we do not want to replace any of the FancyCharacter codes
+				// so we ensure no semi-colon.
+				// (but realistically we should not need this...)
+			sText = sText.Replace ("&", "&amp;");
+
 			return sText.Replace ("--", "&#8212;");
 		}
 		protected override string ReplaceFancyCharacters (string sSource)
 		{
+	
+
 			if (true == controlFile.FancyCharacters)
 			{
 				
@@ -100,36 +110,42 @@ namespace SendTextAway
 			directory_to_sourcefiles = _controlFile.TemplateDirectory;
 			ZIP7 = _controlFile.Zipper;
 			
-			if (null == ZIP7 || Constants.BLANK == ZIP7 || null == directory_to_sourcefiles || Constants.BLANK == directory_to_sourcefiles) {
-				NewMessage.Show (Loc.Instance.GetString ("To generate an epub you need to specificy a valid path to 7Zip and to the template files used to generate the final epub files"));
+			if (null == directory_to_sourcefiles || Constants.BLANK == directory_to_sourcefiles) {
+				NewMessage.Show (Loc.Instance.GetString ("To generate an epub you need to specify a valid path to the template files used to generate the final epub files"));
 				return -1;
 			}
+			if (null == ZIP7 || Constants.BLANK == ZIP7) {
+				NewMessage.Show (Loc.Instance.GetString ("No path to 7-Zip was specified. This step will be skipped.)"));
+			}
 			// create an output directory based on date
-			sDirectory = Path.Combine(_controlFile.OutputDirectory, GetDateDirectory);
-			Directory.CreateDirectory(sDirectory);
-			File.Copy(Path.Combine(directory_to_sourcefiles, "mimetype"), Path.Combine(sDirectory, "mimetype"), true);
+			sDirectory = Path.Combine (_controlFile.OutputDirectory, GetDateDirectory);
+			Directory.CreateDirectory (sDirectory);
+			File.Copy (Path.Combine (directory_to_sourcefiles, "mimetype"), Path.Combine (sDirectory, "mimetype"), true);
 			
-			Directory.CreateDirectory(Path.Combine(sDirectory, "oebps"));
-			DirectoryInfo images = Directory.CreateDirectory(Path.Combine(sDirectory, "oebps\\images"));
-			Directory.CreateDirectory(Path.Combine(sDirectory, "META-INF"));
+			Directory.CreateDirectory (Path.Combine (sDirectory, "oebps"));
+			DirectoryInfo images = Directory.CreateDirectory (Path.Combine (sDirectory, "oebps\\images"));
+			Directory.CreateDirectory (Path.Combine (sDirectory, "META-INF"));
 			
 			// start with footer as default first file?
-			currentFileBeingWritten = Path.Combine(sDirectory,"oebps\\" + "preface.xhtml");
+			currentFileBeingWritten = Path.Combine (sDirectory, "oebps\\" + "preface.xhtml");
 			
-			chapter = 1;
-			base.InitializeDocument(_controlFile);
+			chapter = _controlFile.StartingChapter;
+			base.InitializeDocument (_controlFile);
 			
 			
 			// copy required files
 			
 			// copy image files
-			FileUtils.Copy(new DirectoryInfo(Path.Combine(directory_to_sourcefiles,"oebps\\images")), images, "*.*", "*.*", false, 2, new System.Windows.Forms.ProgressBar());
+			FileUtils.Copy (new DirectoryInfo (Path.Combine (directory_to_sourcefiles, "oebps\\images")), images, "*.*", "*.*", false, 2, new System.Windows.Forms.ProgressBar ());
 			
-			
-			File.Copy(Path.Combine(directory_to_sourcefiles,"oebps\\copyright.xhtml"), Path.Combine(sDirectory, "oebps\\copyright.xhtml"),true);
+			if (true == _controlFile.CopyTitleAndLegalTemplates) {
+				File.Copy(Path.Combine(directory_to_sourcefiles,"oebps\\copyright.xhtml"), Path.Combine(sDirectory, "oebps\\copyright.xhtml"),true);
+				File.Copy(Path.Combine(directory_to_sourcefiles, "oebps\\legal.xhtml"), Path.Combine(sDirectory, "oebps\\legal.xhtml"), true);
+				File.Copy(Path.Combine(directory_to_sourcefiles, "oebps\\title_page.xhtml"), Path.Combine(sDirectory, "oebps\\title_page.xhtml"), true);
+			}
+
 			File.Copy(Path.Combine(directory_to_sourcefiles, "oebps\\stylesheet.css"), Path.Combine(sDirectory, "oebps\\stylesheet.css"), true);
-			File.Copy(Path.Combine(directory_to_sourcefiles, "oebps\\legal.xhtml"), Path.Combine(sDirectory, "oebps\\legal.xhtml"), true);
-			File.Copy(Path.Combine(directory_to_sourcefiles, "oebps\\title_page.xhtml"), Path.Combine(sDirectory, "oebps\\title_page.xhtml"), true);
+
 			File.Copy(Path.Combine(directory_to_sourcefiles, "oebps\\page-template.xpgt"), Path.Combine(sDirectory, "oebps\\page-template.xpgt"), true);
 			
 			
@@ -195,21 +211,13 @@ namespace SendTextAway
 		protected override void CloseCurrentFile()
 		{
 			
-			// moved FOOTNOTE CODE to cleanup to write out at end of file
-			
-			
+
 			
 			// blank list of footnotes for this current section (MIGHT BE MOVED IF CHANGE FOOTNOTE SYSTEM)
 			// June 2010 now writign to end file instead footnotesincurrentsection = new ArrayList(); ;
 			
 			
-			// close off any paragraph tabs
-			for (int i = 1; i <= TabParagraph; i++)
-			{
-				//March 2013 - trying to remove  
-				//InlineWrite("</p>");
-			}
-			TabParagraph = 0;
+		
 			base.CloseCurrentFile();
 			
 			
@@ -222,52 +230,67 @@ namespace SendTextAway
 		/// While processing linline formatting (bold, et cetera), this is used to write out a line of text
 		/// </summary>
 		/// <param name="sText"></param>
-		protected override void InlineWrite(string sText)
+		protected override void InlineWrite (string sText)
 		{
-			if (true == adding_table && false == adding_row_to_table)
-			{
+			if (true == adding_table && false == adding_row_to_table) {
 				adding_table = false;
-				file1.WriteLine("</table>");
+				file1.WriteLine ("</table>");
 			}
 			
 			
 			// if we were writing a bullet list, close it
-			if ("" != startnormalbullet && false == adding_bullet_now)
-			{
-				file1.Write(startnormalbullet);
+			// this adds the </ul>
+			if ("" != startnormalbullet && false == adding_bullet_now) {
+				file1.Write (startnormalbullet);
 				startnormalbullet = "";
 			}
 
 
 
 			sText = sText.Replace (Environment.NewLine, "<p></p>");
+		
+
+			//	 "{0}";
 
 
-			string sLine = "{0}";
 
-
-
-			// we only do a <p> break if we detect a tab
-			if (sText.IndexOf("\t") > -1)
-			{
+			// we only do a <p> break if we detect a tab (May 2013 - - looks like I removed this
+			if (sText.IndexOf ("\t") > -1) {
 
 				
 				//NeedParagraphClosing = true;
 				
 			}
+
+			// replacing NeedParagraphClosing with a counter
+
+
 			
-			
-			if (true == NeedParagraphClosing && "" != sText )
-			{
-				sLine = "{0}</p>";
-				NeedParagraphClosing = false;
+//			if (true == NeedParagraphClosing && "" != sText )
+//			{
+//				sLine = "{0}</p>";
+//				NeedParagraphClosing = false;
+//			}
+
+			string paragraphclosers = "";
+			// May 2013 - do not add closers unless they are closing text
+			if (sText != Constants.BLANK && sText != " ") {
+				while (NeedParagraphClosingCounter > 0) {
+
+					paragraphclosers = paragraphclosers + "</p>";
+					NeedParagraphClosingCounter--;
+				}
 			}
-			
-			sLine = String.Format(sLine, sText);
-			
+			string sLine = sText + paragraphclosers;;
+			//sLine = String.Format(sLine, sText);
+
+
+			sLine = sLine.Replace ("[<", "&lt;");
+			sLine = sLine.Replace ("[>", "&gt;");
 			file1.Write(sLine);
-			
-			
+
+
+			DoErrorTest(sLine);
 			//oSelection.TypeText(sText);
 		}
 		
@@ -359,52 +382,49 @@ namespace SendTextAway
 		/// <param name="sStartCode"></param>
 		/// <param name="sEndCode"></param>
 		/// <param name="sBulletSymbol"></param>
-		private void AddAnyBullet(string sText, string sStartCode, string sEndCode, string sBulletSymbol)
+		private void AddAnyBullet (string sText, string sStartCode, string sEndCode, string sBulletSymbol)
 		{
-			if ("" == startnormalbullet)
-			{
+			if ("" == startnormalbullet) {
 				
-				file1.Write(sStartCode);
+				file1.Write (sStartCode);
 				startnormalbullet = sEndCode;
 			}
 			
-			if (sText.StartsWith(sBulletSymbol + sBulletSymbol + sBulletSymbol))
-			{
-				if (3 != highestbulletlevel)
-				{
-					file1.Write(sStartCode);
+			if (sText.StartsWith (sBulletSymbol + sBulletSymbol + sBulletSymbol)) {
+				if (3 != highestbulletlevel) {
+					file1.Write (sStartCode);
 				}
 				highestbulletlevel = 3;
-			}
-			else
-				if (sText.StartsWith(sBulletSymbol + sBulletSymbol))
-			{
-				if (2 != highestbulletlevel)
-				{
-				file1.Write(sStartCode);
+			} else
+				if (sText.StartsWith (sBulletSymbol + sBulletSymbol)) {
+				if (2 != highestbulletlevel) {
+					file1.Write (sStartCode);
 				}
 				highestbulletlevel = 2;
-			}
-			else if (sText.StartsWith(sBulletSymbol))
-			{
+			} else if (sText.StartsWith (sBulletSymbol)) {
 				// set back to 1
 				// because we were at a higher number and now we are a lower number
-				while (highestbulletlevel > 1)
-				{
+				while (highestbulletlevel > 1) {
 					// add /ol
-					file1.Write(sEndCode);
+					file1.Write (sEndCode);
 					highestbulletlevel--;
 				}
 				highestbulletlevel = 1;
 			}
-			sText = sText.TrimStart(sBulletSymbol[0]).Trim();
-			file1.Write(String.Format("<li>"));
+			sText = sText.TrimStart (sBulletSymbol [0]).Trim ();
+
+			// Hotfix May 2013
+			// By adding an empty * to the end of a list we can have a list end, without text between it and the ntext section
+			// previoulsy this would mix up the tags. 
+			if (sText != "") {
+				file1.Write (String.Format ("<li>"));
 			
-			// have to do this to allow formating to appear on the line
-			adding_bullet_now = true;
-			FormatRestOfText(sText);
-			adding_bullet_now = false;
-			file1.Write("</li>");
+				// have to do this to allow formating to appear on the line
+				adding_bullet_now = true;
+				FormatRestOfText (sText);
+				adding_bullet_now = false;
+				file1.Write ("</li>");
+			}
 		}
 		
 		/// <summary>
@@ -435,13 +455,16 @@ namespace SendTextAway
 		/// <param name="nAlignment"></param>
 		protected override void AlignText(int nAlignment)
 		{
-			NeedParagraphClosing = true;
+			// May 2013 - changed this to a counter because someties we have alignments happening really tight together
+			NeedParagraphClosingCounter++;
+			//NeedParagraphClosing = true;
 			switch (nAlignment)
 			{
 				// February 2013 - does every P break require a closing because of the pattern I've already established?
-			case 0: file1.WriteLine("<p align=\"center\">"); break;
-			case 1: file1.WriteLine("<p align=\"left\">"); break;  
-			case 2: file1.WriteLine("<p align=\"right\">"); break;
+				// May 2013 - these don't seem to be causing recent crop of errors [Nope: rejected. We cover this already with NeedParagraph Closing
+			case 0: file1.WriteLine("<p align=\"center\">"); TabParagraph++; break;
+			case 1: file1.WriteLine("<p align=\"left\">"); TabParagraph++;break;  
+			case 2: file1.WriteLine("<p align=\"right\">"); TabParagraph++;break;
 			}
 		}
 		
@@ -513,7 +536,28 @@ namespace SendTextAway
 			
 			
 		}
-		
+		/// <summary>
+		/// adds a picture
+		/// </summary>
+		/// <param name='nValue'>
+		/// 
+		/// </param>
+		/// <param name='sPathToFile'>
+		/// S path to file.
+		/// </param>
+		protected override void AddPicture (string sPathToFile)
+		{
+			//base.AddPicture (sPathToFile);
+
+			string FileName = new FileInfo (sPathToFile).Name;
+			if (FileName != Constants.BLANK) {
+				string newDirectory = Path.Combine (sDirectory, "oebps");
+				// first we copy the file to the location
+				File.Copy (sPathToFile, Path.Combine (newDirectory, FileName));
+				// just in root directory we just set the reference to the file directly
+				InlineWrite ("<img src=\"" + FileName +"\""+ " alt=\""+FileName+"\"/>");
+			}
+		}
 		/// <summary>
 		/// 
 		/// </summary>
@@ -694,27 +738,44 @@ namespace SendTextAway
 		/// </summary>
 		protected override void Cleanup ()
 		{
-			base.Cleanup ();
+//			// close off any paragraph tabs
+			// May 2013 - this breaks more than it fixes
+//			for (int i = 1; i <= TabParagraph; i++)
+//			{
+//				//March 2013 - trying to remove  
+//				// May 2013 - I added this BACK in to try to counter ALIGN tags. The only PLACE this is increment is inside of Alignments.
+//				InlineWrite("</p>");
+//			}
+//			TabParagraph = 0;
+
+			// May 2013 - removing this because we call CloseCurrentFile oruselves -- which is also called in base.Cleanup.
+		//	base.Cleanup ();
+			// moved FOOTNOTE CODE to cleanup to write out at end of file
+
+
 			
-			
-			// write out footnotes.xhtml
-			string footnotes = Path.Combine (sDirectory, String.Format ("oebps\\footnotes.xhtml", chapter.ToString ()));
-			StartNewFile (footnotes);
-			
-			if (footnotesincurrentsection.Count > 0) {
-				InlineWrite ("<hr></hr><h3>Footnotes</h3>");
+			try {
+				if (footnotesincurrentsection.Count > 0) {
+					// write out footnotes.xhtml
+					string footnotes = Path.Combine (sDirectory, String.Format ("oebps\\footnotes.xhtml", chapter.ToString ()));
+					StartNewFile (footnotes);
+
+
+					InlineWrite ("<hr></hr><h3>Footnotes</h3>");
 				
-				// write out footnotes for current section
-				int count = 0;
-				foreach (string s in footnotesincurrentsection) {
-					count++;
-					InlineWrite ("<strong>[" + count.ToString () + "] </strong>");
-					AddActualFootnote (s);
+					// write out footnotes for current section
+					int count = 0;
+					foreach (string s in footnotesincurrentsection) {
+						count++;
+						InlineWrite ("<strong>[" + count.ToString () + "] </strong>");
+						AddActualFootnote (s);
+					}
 				}
+			
+				CloseCurrentFile ();
+			} catch (Exception ex) {
+				NewMessage.Show (ex.ToString());
 			}
-			
-			CloseCurrentFile ();
-			
 			CreateContentOPF ();
 			
 			if (File.Exists (ZIP7) == true) {
@@ -757,11 +818,10 @@ namespace SendTextAway
 		/// <summary>
 		/// goes through the files aaraylist and creates an xml file content.opf
 		/// </summary>
-		private void CreateContentOPF()
+		private void CreateContentOPF ()
 		{
 			
-			if (files != null && files.Count > 0)
-			{
+			if (files != null && files.Count > 0) {
 				
 				/*// we remove footer.xhtml (june 2010 to put it at end)
 				string footnote = (files[0].ToString());
@@ -769,83 +829,115 @@ namespace SendTextAway
 				files.Add(footnote);
 				*/
 					
-					// write content.opf, reading initial stuff.
-					StreamReader reader = new StreamReader(Path.Combine(directory_to_sourcefiles, "oebps\\template_content.opf"));
-				StreamWriter writer = new StreamWriter(Path.Combine(sDirectory, "oebps\\content.opf"));
+				// write content.opf, reading initial stuff.
+				StreamReader reader = new StreamReader (Path.Combine (directory_to_sourcefiles, "oebps\\template_content.opf"));
+				StreamWriter writer = new StreamWriter (Path.Combine (sDirectory, "oebps\\content.opf"));
 				
 				
-				string line = reader.ReadLine();
-				while (line != null)
-				{
+				string line = reader.ReadLine ();
+				while (line != null) {
 					
 					
-					line = ParseLineForId(line);
-					writer.WriteLine(line);
+					line = ParseLineForId (line);
+					writer.WriteLine (line);
 					
-					line = reader.ReadLine();
-					if (line == "[chaptersstart]")
-					{
+					line = reader.ReadLine ();
+					if (line == "[chaptersstart]") {
 						// now start inserting chapters
-						foreach (string s in files)
-						{
+						foreach (string s in files) {
 							// for it to work on Stanza I think the filenames need underliens and not spaces
-							string sFile = s.Replace(" ", "_").Trim();
-							writer.WriteLine(String.Format("<item id=\"{0}\" href=\"{0}\" media-type=\"application/xhtml+xml\"/>", sFile));
+							string sFile = s.Replace (" ", "_").Trim ();
+							writer.WriteLine (String.Format ("<item id=\"{0}\" href=\"{0}\" media-type=\"application/xhtml+xml\"/>", sFile));
 						}
 						// we read the next line
-						line = reader.ReadLine();
+						line = reader.ReadLine ();
 					}
-					if (line == "[tocstart]")
-					{
-						foreach (string s in files)
-						{
+					if (line == "[tocstart]") {
+						foreach (string s in files) {
 							// for it to work on Stanza I think the filenames need underliens and not spaces
-							string sFile = s.Replace(" ", "_").Trim();
+							string sFile = s.Replace (" ", "_").Trim ();
 							// this is basically dicating the order that the book appears
-							writer.WriteLine(String.Format("<itemref idref=\"{0}\"/>", sFile));
+							writer.WriteLine (String.Format ("<itemref idref=\"{0}\"/>", sFile));
 						}
-						line = reader.ReadLine();
+						line = reader.ReadLine ();
 					}
 					
 				}
-				reader.Close();
-				writer.Close();
-				
+				reader.Close ();
+				writer.Close ();
+
+				//
 				// now we write the toc blank.ncx file
-				reader = new StreamReader(Path.Combine(directory_to_sourcefiles, "oebps\\toc blank.ncx"));
-				writer = new StreamWriter(Path.Combine(sDirectory, "oebps\\toc.ncx"));
+				//
+				reader = new StreamReader (Path.Combine (directory_to_sourcefiles, "oebps\\toc blank.ncx"));
+				writer = new StreamWriter (Path.Combine (sDirectory, "oebps\\toc.ncx"));
 				line = null;
 				
-				line = reader.ReadLine();
-				while (line != null)
-				{
+				line = reader.ReadLine ();
+				while (line != null) {
 					// TO DO parse IDs from the ID database
-					line = ParseLineForId(line);
-					writer.WriteLine(line);
+					line = ParseLineForId (line);
+					writer.WriteLine (line);
 					
-					line = reader.ReadLine();
+					line = reader.ReadLine ();
 					
-					if (line == "[chaptersstart]")
-					{
+					if (line == "[chaptersstart]") {
 						int count = 2;
-						foreach (string s in files)
-						{  //make navlabel nice and translate the ids
-							string navlabel = s.Replace(".xhtml", "").Trim();
+						foreach (string s in files) {  //make navlabel nice and translate the ids
+							string navlabel = s.Replace (".xhtml", "").Trim ();
 							// for it to work on Stanza I think the filenames need underliens and not spaces
-							string sFile = s.Replace(" ", "_").Trim();
+							string sFile = s.Replace (" ", "_").Trim ();
 							
-							writer.WriteLine(String.Format("<navPoint id=\"{0}\" playOrder=\"{1}\"><navLabel><text>{2}</text></navLabel><content src=\"{0}\"/></navPoint>",
+							writer.WriteLine (String.Format ("<navPoint id=\"{0}\" playOrder=\"{1}\"><navLabel><text>{2}</text></navLabel><content src=\"{0}\"/></navPoint>",
 							                               sFile, count, navlabel));
 							count++;
 						}
-						line = reader.ReadLine();
+						line = reader.ReadLine ();
 					}
 				}
-				reader.Close();
-				writer.Close();
+				reader.Close ();
+				writer.Close ();
 				
-			}
 			
+
+			
+			//
+			// now we write the actual TOC file that is inserted at front of book
+			//
+			reader = new StreamReader (Path.Combine (directory_to_sourcefiles, "oebps\\template_toc.xhtml"));
+			writer = new StreamWriter (Path.Combine (sDirectory, "oebps\\toc.xhtml"));
+			line = null;
+			
+			line = reader.ReadLine ();
+			while (line != null) {
+				// TO DO parse IDs from the ID database
+				line = ParseLineForId (line);
+				writer.WriteLine (line);
+				
+				line = reader.ReadLine ();
+				
+				if (line == "[chaptersstart]") {
+					int count = 2;
+					foreach (string s in files) {  //make navlabel nice and translate the ids
+						string navlabel = s.Replace (".xhtml", "").Trim ();
+							navlabel = navlabel.Replace ("_", " ").ToUpper ();
+
+						// for it to work on Stanza I think the filenames need underliens and not spaces
+						string sFile = s;// s.Replace(" ", "_").Trim();
+						writer.WriteLine (String.Format ("<p><a href=\"{0}\">{1}</a></p>",
+						                               sFile, navlabel));
+
+
+						count++;
+					}
+					line = reader.ReadLine ();
+				}
+			}
+			reader.Close ();
+			writer.Close ();
+		
+			
+			}
 			
 		}
 		/// <summary>

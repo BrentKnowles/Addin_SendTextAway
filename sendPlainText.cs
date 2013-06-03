@@ -122,7 +122,9 @@ namespace SendTextAway
         /// </summary>
         protected virtual void CloseCurrentFile()
         {
-            InsertFooterorNewFile(chaptertoken);
+
+			InsertFooterorNewFile(chaptertoken);
+			//Console.Beep();
             file1.Close();
             file1.Dispose();
         }
@@ -133,7 +135,9 @@ namespace SendTextAway
         /// </summary>
         protected override void Cleanup ()
 		{
+
 			base.Cleanup ();
+		
 			CloseCurrentFile ();
 			if (false == SuppressMessages) {
 				CoreUtilities.NewMessage.Show (CoreUtilities.Loc.Instance.GetStringFmt ("{0} Has been written out", currentFileBeingWritten));

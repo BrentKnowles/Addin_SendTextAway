@@ -120,8 +120,8 @@ namespace MefAddIns
 				//				Control = (ControlFile)FileUtils.DeSerialize (@"C:\Users\BrentK\Documents\Keeper\SendTextAwayControlFiles\standardsub.xml", typeof(ControlFile));
 				//				if (Control != null) {
 				//NewMessage.Show ("Convering with " + ((NoteDataXML_SendIndex) LayoutDetails.Instance.CurrentLayout.CurrentTextNote).Controller.ConverterType.ToString());
-				SendAwayIt.WriteText (param.ToString (), ((NoteDataXML_SendIndex) LayoutDetails.Instance.CurrentLayout.CurrentTextNote).Controller, -1);
-				
+				string sErrors = SendAwayIt.WriteText (param.ToString (), ((NoteDataXML_SendIndex) LayoutDetails.Instance.CurrentLayout.CurrentTextNote).Controller, -1);
+				NewMessage.Show (sErrors);
 				//}
 				// will be used by this one
 				//NewMessage.Show("SendAway " + param.ToString());

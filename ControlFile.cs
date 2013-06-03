@@ -200,6 +200,30 @@ namespace SendTextAway
             set { outputdirectory = value; }
         }
 
+		private int startingchapter=1;
+		/// <summary>
+		/// For things like epub we can specify where the file should go
+		/// </summary>
+		[Description("Start chapter numbering at this.")]
+		[Category(EPUB)]
+		public int StartingChapter
+		{
+			get { return startingchapter; }
+			set { startingchapter = value; }
+		}
+
+
+		bool copyTitleAndLegalTemplates = false;
+		[Description("If true will copy templates over for copyright, legal, and title page. User must add them manually to the .opf file however. These files are not requires, so only set this option if you really want them.")]
+		[Category(EPUB)]
+		public bool CopyTitleAndLegalTemplates {
+			get {
+				return copyTitleAndLegalTemplates;
+			}
+			set {
+				copyTitleAndLegalTemplates = value;
+			}
+		}
 
         private string templatedirectory;
         /// <summary>

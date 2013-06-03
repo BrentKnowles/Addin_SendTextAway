@@ -70,7 +70,7 @@ namespace SendTextAway
         protected string lastLink = ""; // when we encounter |www.|me link| we store the www.
                                         // and then when the next | is hit we grab it and build
                                         // and proper link with the label 'me link' 
-        private string sError = ""; //holder error information
+        protected string sError = ""; //holder error information
         
         protected string sFulltext = "";
 
@@ -137,6 +137,7 @@ namespace SendTextAway
                         int ii = 9;
                     }
 */
+
 
                     // if we have hit chapter threshold than stop
                     if ((stopat > 0) && chapter == (stopat + 1))
@@ -644,9 +645,10 @@ namespace SendTextAway
                                                     sBoldText = "";
                                                 }
                                                 else
-                                                    if (sBoldText.IndexOf("##") > -1 ||
-                                                        sBoldText.IndexOf("www.") > -1 ||
-                                                        sBoldText.IndexOf("http:") > -1)
+                                                    if (sBoldText.IndexOf("##") > -1    ||
+                                                        sBoldText.IndexOf("www.") > -1  ||
+                                                        sBoldText.IndexOf("http:") > -1 ||
+														sBoldText.IndexOf("https:") > -1)
                                                     {
                                                         // error checking
                                                         // look for broken bookmarks
@@ -1555,16 +1557,35 @@ namespace SendTextAway
         /// </summary>
         public int error_CountInlineBrackets = 0;
 
+		// abstracted this out, because not all CHILDREN will call this version of Inline Write, hence they need to call error dtection on their own.
+		protected void DoErrorTest (string sText)
+		{
+			if (sText.IndexOf ("[[") > -1 || sText.IndexOf ("]]") > -1) {
+				error_CountInlineBrackets++;
+			}
+			if (sText.IndexOf ("&") > -1) {
+				sError = sError + " AMPERSAND FOUND (Possible Issue for ePub): " + sText + Environment.NewLine;
+			}
+			// June 2013 - I amended this so that it only cares about = signs at the front or back of a string.
+			// will still get many false positives but will reduce them.
+
+			if (sText.IndexOf ("=") == 0 || sText.IndexOf("=") == sText.Length-1) {
+				sError = sError + " EQUAL SIGN (Possible Heading Error): " + sText + Environment.NewLine;;
+			}
+			if (sText.IndexOf ("_") > -1) {
+				sError = sError + " Underscore (Possible terminated underline): " + sText + Environment.NewLine;;
+			}
+		
+		}
+
         /// <summary>
         /// While processing linline formatting (bold, et cetera), this is used to write out a line of text
         /// </summary>
         /// <param name="sText"></param>
-        protected virtual void InlineWrite(string sText)
-        {
-            if (sText.IndexOf("[[") > -1 || sText.IndexOf("]]") > -1)
-            {
-                error_CountInlineBrackets++;
-            }
+        protected virtual void InlineWrite (string sText)
+		{
+			DoErrorTest(sText);
+
         }
 
         protected virtual void InlineBold(int nValue)
