@@ -284,9 +284,13 @@ namespace SendTextAway
 			string sLine = sText + paragraphclosers;;
 			//sLine = String.Format(sLine, sText);
 
-
+			/* I do not know what this is For Feb 4 2014
+			 * I do not understand what the plan here was. This broke HTMl ecoding.*/
 			sLine = sLine.Replace ("[<", "&lt;");
 			sLine = sLine.Replace ("[>", "&gt;");
+
+
+
 			file1.Write(sLine);
 
 
