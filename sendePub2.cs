@@ -860,6 +860,42 @@ namespace SendTextAway
 			{
 				foreach (string aFileUsed in this.files) {
 					// process the file
+
+					string SourceFile = Path.Combine (controlFile.OutputDirectory + "\\" +GetDateDirectory, "oebps\\" + aFileUsed);
+
+					//NewMessage.Show (SourceFile);
+					//rename file
+					if (File.Exists (SourceFile))
+					 {
+						System.IO.File.Move (SourceFile, SourceFile+"2");
+
+					// open filesource
+						StreamReader source = new StreamReader(SourceFile+"2");
+					
+
+					// openfiledest with name of old file
+						StreamWriter writer = new StreamWriter(SourceFile);
+					// copy
+					string sLine = source.ReadLine();
+					while (sLine != null)
+					{
+							sLine = sLine.Replace("<p></p>","<br/>");
+							// if there's a bunch of breaks together consolidate them
+							sLine = sLine.Replace ("<br/><br/><br/><br/><br/>", "<br/>");
+							sLine = sLine.Replace ("<br/><br/><br/>", "<br/>");
+
+						writer.WriteLine(sLine);
+							sLine = source.ReadLine();
+
+						
+					}
+						//writer.WriteLine("hi");
+					//close
+					source.Close();
+					writer.Close();
+					// delete source
+						File.Delete (SourceFile+"2");
+					}
 				}
 			}
 
