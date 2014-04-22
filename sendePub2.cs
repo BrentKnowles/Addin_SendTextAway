@@ -689,7 +689,7 @@ namespace SendTextAway
 			}
 			//   remember we need to have fancy formating and a return link and a Large name like NOTE that can be clicked on ipod
 		}
-		
+	
 		protected override void OnTitleChange()
 		{
 			// here we break off and start a new file
@@ -847,6 +847,22 @@ namespace SendTextAway
 
             */
 			
+		}
+		/// <summary>
+		/// Raises the finished totally event.
+		/// 
+		/// This canbe used for post-processing, like iterating through "files"
+		/// </summary>
+		protected override void OnFinishedTotally ()
+		{
+			base.OnFinishedTotally ();
+			if (this.controlFile.EpubRemoveDoublePageTags == true)
+			{
+				foreach (string aFileUsed in this.files) {
+					// process the file
+				}
+			}
+
 		}
 		/// <summary>
 		/// goes through the files aaraylist and creates an xml file content.opf

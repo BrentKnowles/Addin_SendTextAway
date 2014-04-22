@@ -267,8 +267,19 @@ namespace SendTextAway
             // also add it to END message
             controlFile.EndMessage = String.Format("{0} {1} {2}", controlFile.EndMessage,
                 Environment.NewLine, line);
+
+			OnFinishedTotally();
             return sError;
         }
+
+		/// <summary>
+		/// Raises the finished totally event.
+		/// 
+		/// This canbe used for post-processing, like iterating through "files"
+		/// </summary>
+		protected virtual void OnFinishedTotally()
+		{
+		}
         protected virtual void SearchFor(object searchMe)
         {
         }

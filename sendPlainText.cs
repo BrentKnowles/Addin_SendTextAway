@@ -124,6 +124,7 @@ namespace SendTextAway
         {
 
 			InsertFooterorNewFile(chaptertoken);
+
 			//Console.Beep();
             file1.Close();
             file1.Dispose();

@@ -58,9 +58,24 @@ namespace SendTextAway
             get { return _RemoveExcessSpaces; }
             set { _RemoveExcessSpaces = value; }
         }
-
+		private bool epubRemoveDoublePageTags=false;
+		/// <summary>
+		/// Gets or sets a value indicating whether this <see cref="SendTextAway.ControlFile"/> epub remove double page tags.
+		/// 
+		/// For mobi format <p></p> is ignored as linefeed so we convert to <br/> (Incomplete as I write this comment but putting hooks in place just in case)
+		/// </summary>
+		/// <value>
+		/// <c>true</c> if epub remove double page tags; otherwise, <c>false</c>.
+		/// </value>
+		public bool EpubRemoveDoublePageTags {
+			get { return epubRemoveDoublePageTags;}
+			set { epubRemoveDoublePageTags = value;}
+		}
 
         private bool _KeepUnderscore = false;
+
+		// we hide this because were setting it on main form and can't update it
+		[Browsable(false)]
         [Category(GENERAL)]
         [Description("set to true if you want to keep underscores (no formatting)")]
         public bool UnderscoreKeep
@@ -71,6 +86,8 @@ namespace SendTextAway
 
        public enum convertertype { word, epub, text };
         private convertertype _convertype = convertertype.word;
+		// we hide this because were setting it on main form and can't update it
+		[Browsable(false)]
         [Description("What type of conversion to do on the text (word, epub, text)")]
         [Category(GENERAL)]
         public convertertype ConverterType
@@ -123,6 +140,8 @@ namespace SendTextAway
         }
 
         private bool mUnderlineShouldBeItalicInstead = false;
+		// we hide this because were setting it on main form and can't update it
+		[Browsable(false)]
         [Description("For Smashwords. Underscore text will be italic instead of underline.")]
         [Category(GENERAL)]
         public bool UnderlineShouldBeItalicInstead
@@ -259,6 +278,9 @@ namespace SendTextAway
         /// </summary>
         public object oBodyText; // object reference
         private string bodyText;
+
+		// we hide this because were setting it on main form and can't update it
+		[Browsable(false)]
         [Description("object reference to the body text style")]
         [Category(WORD)]
         public string BodyText
@@ -440,6 +462,9 @@ namespace SendTextAway
 		}
 
         private string template;
+
+		// we hide this because were setting it on main form and can't update it
+		[Browsable(false)]
         /// <summary>
         /// base template to use
         /// </summary>
