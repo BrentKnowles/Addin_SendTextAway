@@ -64,9 +64,18 @@ namespace SendTextAway
 				// we do not want to replace any of the FancyCharacter codes
 				// so we ensure no semi-colon.
 				// (but realistically we should not need this...)
-			sText = sText.Replace ("&", "&amp;");
+			//sText = sText.Replace ("&", "&amp;");
 
 			return sText.Replace ("--", "&#8212;");
+		}
+		protected override string FixHTMLEncoding (string sText)
+		{
+			sText = sText.Replace ("&", "&amp;");
+			sText = sText.Replace ("…","...");
+			// Unicode generic replacement http://stackoverflow.com/questions/1488866/how-to-replace-i-in-a-string
+			//sText = sText.Replace ("\xEF\xBF\xBD","...");
+			sText = sText.Replace("\xFFFD", "...");
+			return sText;
 		}
 		protected override string ReplaceFancyCharacters (string sSource)
 		{
@@ -273,8 +282,9 @@ namespace SendTextAway
 //			}
 
 			string paragraphclosers = "";
+			// 20/04/2014 - do not add closers IF we are in midst of formating like (i.e., <p><u>hi</u></p> NOT <p><u></p></u>
 			// May 2013 - do not add closers unless they are closing text
-			if (sText != Constants.BLANK && sText != " ") {
+			if (sText != Constants.BLANK && sText != " " && IsFormating == false) {
 				while (NeedParagraphClosingCounter > 0) {
 
 					paragraphclosers = paragraphclosers + "</p>";
@@ -297,7 +307,14 @@ namespace SendTextAway
 			DoErrorTest(sLine);
 			//oSelection.TypeText(sText);
 		}
-		
+//		private bool IsFormating (string sTag)
+//		{
+//			if (sTag == "<u>" || sTag =="</u>") {
+//				return true;
+//			}
+//
+//			return false;
+//		}
 		private string lastmultiline = "";
 		protected override bool AddStartMultiLineFormat(string sFormatType)
 		{
@@ -476,14 +493,16 @@ namespace SendTextAway
 		{
 			if (nValue > 0)
 			{
+				IsFormating = true;
 				InlineWrite("<strike>");
 			}
 			else
 			{
 				InlineWrite("</strike>");
+				IsFormating = false;
 			}
 		}
-		
+		private bool IsFormating = false;
 		/// <summary>
 		/// nvalue is ignored for underline
 		/// </summary>
@@ -492,11 +511,14 @@ namespace SendTextAway
 		{
 			if (nValue > 0)
 			{
+				IsFormating = true;
 				InlineWrite("<u>");
+
 			}
 			else
 			{
 				InlineWrite("</u>");
+				IsFormating = false;
 			}
 		}
 		
@@ -508,11 +530,14 @@ namespace SendTextAway
 		{
 			if (nValue > 0)
 			{
+				IsFormating = true;
 				InlineWrite("<sup>");
 			}
 			else
 			{
+
 				InlineWrite("</sup>");
+				IsFormating = false;
 			}
 		}
 		
@@ -524,11 +549,13 @@ namespace SendTextAway
 		{
 			if (nValue > 0)
 			{
+				IsFormating = true;
 				InlineWrite("<sub>");
 			}
 			else
 			{
 				InlineWrite("</sub>");
+				IsFormating = false;
 			}
 		}
 		
@@ -693,11 +720,13 @@ namespace SendTextAway
 		{
 			if (nValue > 0)
 			{
+				IsFormating = true;
 				InlineWrite("<em>");
 			}
 			else
 			{
 				InlineWrite("</em>");
+				IsFormating = false;
 			}
 			
 		}

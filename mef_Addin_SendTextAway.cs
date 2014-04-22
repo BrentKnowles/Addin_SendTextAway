@@ -62,8 +62,9 @@ namespace MefAddIns
 		public string Version
 		{
 			// Version History
+			// 1.0.2.0 - series of bug fixes
 			// 1.0.1.0 - adding <game> tagging
-			get { return @"1.0.1.0"; }
+			get { return @"1.0.2.0"; }
 		}
 		public string Description
 		{

@@ -86,6 +86,10 @@ namespace SendTextAway
 		{
 			return sText; 
 		}
+		protected virtual string FixHTMLEncoding (string sText)
+		{
+			return sText;
+		}
 
         /// <summary>
         /// This routine will handle the parsing of the file and will call other functions
@@ -167,7 +171,7 @@ namespace SendTextAway
 					}
 				}
 
-
+				sText = FixHTMLEncoding(sText);
 				// April 2013
 				// replace -- with emdash if that's teh setting
 				if (controlFile.ConvertToEmDash == true)
@@ -175,6 +179,7 @@ namespace SendTextAway
 
 					sText = HandleEmDash(sText); 
 				}
+
 
 
 
