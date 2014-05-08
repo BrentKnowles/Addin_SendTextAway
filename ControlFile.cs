@@ -50,6 +50,46 @@ namespace SendTextAway
         const string EPUB = "Format - ePub";
         const string WORD = "Format - Word";
 
+		// for epub -- skippreface is there is not supposed to be one.
+		private bool skipPreface = false;
+		[Category(EPUB)]
+		public bool SkipPreface {
+			get { return skipPreface;}
+			set { skipPreface = value;}
+		}
+
+		private string overrideStyleSheet=String.Empty;
+		//user can specify a different stylesheet to use
+		public string OverrideStyleSheet {
+			get {
+				return overrideStyleSheet;
+			}
+			set {
+				overrideStyleSheet = value;
+			}
+		}
+
+
+
+		private bool novelMode = false;
+		/// <summary>
+		/// Gets or sets a value indicating whether this <see cref="SendTextAway.ControlFile"/> novel mode.
+		/// 
+		/// Use this to KEEP LINE INDENTS (re: tabs)
+		/// </summary>
+		/// <value>
+		/// <c>true</c> if novel mode; otherwise, <c>false</c>.
+		/// </value>
+		[Category(EPUB)]
+		public bool NovelMode {
+			get {
+				return novelMode;
+			}
+			set {
+				novelMode = value;
+			}
+		}
+
         private bool _RemoveExcessSpaces=false;
         [Category(GENERAL)]
         [Description("false = leave them, true = remove strings of 5 spaces")]
@@ -67,6 +107,7 @@ namespace SendTextAway
 		/// <value>
 		/// <c>true</c> if epub remove double page tags; otherwise, <c>false</c>.
 		/// </value>
+		[Category(EPUB)]
 		public bool EpubRemoveDoublePageTags {
 			get { return epubRemoveDoublePageTags;}
 			set { epubRemoveDoublePageTags = value;}

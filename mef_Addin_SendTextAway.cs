@@ -62,9 +62,13 @@ namespace MefAddIns
 		public string Version
 		{
 			// Version History
+			// 1.0.5.0 - handling 3rd level bullet points and backing out properly
+			// 1.0.4.0 - trying to make Novels appear with lines indented (instead of flush-left). 01/05/2014
+			// 1.0.3.0 - remove UNDERSCORES from Table of COntents -- what we show
+			         //- Tweaked toc blank in TEMPLATE files for epub Sendaway to not have a title page.
 			// 1.0.2.0 - series of bug fixes
 			// 1.0.1.0 - adding <game> tagging
-			get { return @"1.0.2.0"; }
+			get { return @"1.0.4.0"; }
 		}
 		public string Description
 		{

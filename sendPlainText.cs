@@ -81,27 +81,33 @@ namespace SendTextAway
         ///  anew file has been started
         /// </summary>
         /// <param name="sFile"></param>
-        protected void StartNewFile(string sFile)
-        {
-            if (File.Exists(sFile) == true)
-            {
-                File.Delete(sFile);
-            }
-            file1 = new StreamWriter(sFile);
+        protected void StartNewFile (string sFile)
+		{
+			if (File.Exists (sFile) == true) {
+				File.Delete (sFile);
+			}
+			file1 = new StreamWriter (sFile);
 
-            if (sFile.IndexOf("preface") > -1)
-            {
-                InsertHeaderForNewFile("Preface");
-            }
-            else
-            if (sFile.IndexOf("footnote") > -1)
-            {
-                InsertHeaderForNewFile("Footnotes");
-            }
-            else
-                InsertHeaderForNewFile(chaptertoken);
-            FileInfo file = new FileInfo(sFile);
-            files.Add(file.Name);
+			if (sFile.IndexOf ("preface") > -1) {
+				InsertHeaderForNewFile ("Preface");
+			} else
+            if (sFile.IndexOf ("footnote") > -1) {
+				InsertHeaderForNewFile ("Footnotes");
+			} else
+				InsertHeaderForNewFile (chaptertoken);
+			FileInfo file = new FileInfo (sFile);
+
+
+			bool showPreface = true;
+
+			if (sFile.IndexOf ("preface") > -1 && controlFile.SkipPreface == true) {
+				showPreface = false;
+			}
+
+
+			if (showPreface) {
+				files.Add (file.Name);
+			}
             file = null;
             
             

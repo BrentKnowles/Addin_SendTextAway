@@ -148,13 +148,18 @@ namespace SendTextAway
 			FileUtils.Copy (new DirectoryInfo (Path.Combine (directory_to_sourcefiles, "oebps\\images")), images, "*.*", "*.*", false, 2, new System.Windows.Forms.ProgressBar ());
 			
 			if (true == _controlFile.CopyTitleAndLegalTemplates) {
-				File.Copy(Path.Combine(directory_to_sourcefiles,"oebps\\copyright.xhtml"), Path.Combine(sDirectory, "oebps\\copyright.xhtml"),true);
-				File.Copy(Path.Combine(directory_to_sourcefiles, "oebps\\legal.xhtml"), Path.Combine(sDirectory, "oebps\\legal.xhtml"), true);
-				File.Copy(Path.Combine(directory_to_sourcefiles, "oebps\\title_page.xhtml"), Path.Combine(sDirectory, "oebps\\title_page.xhtml"), true);
+				File.Copy (Path.Combine (directory_to_sourcefiles, "oebps\\copyright.xhtml"), Path.Combine (sDirectory, "oebps\\copyright.xhtml"), true);
+				File.Copy (Path.Combine (directory_to_sourcefiles, "oebps\\legal.xhtml"), Path.Combine (sDirectory, "oebps\\legal.xhtml"), true);
+				File.Copy (Path.Combine (directory_to_sourcefiles, "oebps\\title_page.xhtml"), Path.Combine (sDirectory, "oebps\\title_page.xhtml"), true);
 			}
 
-			File.Copy(Path.Combine(directory_to_sourcefiles, "oebps\\stylesheet.css"), Path.Combine(sDirectory, "oebps\\stylesheet.css"), true);
 
+			if (File.Exists (controlFile.OverrideStyleSheet)) {
+				File.Copy (controlFile.OverrideStyleSheet, Path.Combine (sDirectory, "oebps\\stylesheet.css"), true);
+			} else {
+				// copy the stock file
+				File.Copy (Path.Combine (directory_to_sourcefiles, "oebps\\stylesheet.css"), Path.Combine (sDirectory, "oebps\\stylesheet.css"), true);
+			}
 			File.Copy(Path.Combine(directory_to_sourcefiles, "oebps\\page-template.xpgt"), Path.Combine(sDirectory, "oebps\\page-template.xpgt"), true);
 			
 			
@@ -418,6 +423,14 @@ namespace SendTextAway
 				highestbulletlevel = 3;
 			} else
 				if (sText.StartsWith (sBulletSymbol + sBulletSymbol)) {
+
+				while (highestbulletlevel > 2) {
+					// add /ol
+					file1.Write (sEndCode);
+					highestbulletlevel--;
+				}
+
+
 				if (2 != highestbulletlevel) {
 					file1.Write (sStartCode);
 				}
@@ -782,7 +795,7 @@ namespace SendTextAway
 //			TabParagraph = 0;
 
 			// May 2013 - removing this because we call CloseCurrentFile oruselves -- which is also called in base.Cleanup.
-		//	base.Cleanup ();
+			//	base.Cleanup ();
 			// moved FOOTNOTE CODE to cleanup to write out at end of file
 
 
@@ -807,23 +820,30 @@ namespace SendTextAway
 			
 				CloseCurrentFile ();
 			} catch (Exception ex) {
-				NewMessage.Show (ex.ToString());
+				NewMessage.Show (ex.ToString ());
 			}
 			CreateContentOPF ();
-			
+
+
+
+
 			if (File.Exists (ZIP7) == true) {
-				// now we write out a batch file
-				string zipfile = Path.Combine (directory_to_sourcefiles, "lastzip.bat");
-				string sourcepath = sDirectory;
-				string zippath = sDirectory + ".epub";
-				///<img alt="--" title="" src="images/fleuron.png" width="275" height="20"></img>
-				StreamWriter zip = new StreamWriter (zipfile);
-				string scommand = String.Format ("\"{0}\" a -tzip \"{1}\" \"{2}\"", ZIP7, zippath, sourcepath);
-				zip.WriteLine (scommand);
-				zip.Close ();
-				// runbatch
-				General.OpenDocument (zipfile, "");
+				NewMessage.Show ("01/04/2014 -- The ZIP worked but if you overwrote the style sheet, the changes did not appear unless you manually Compressed the directory yourself and added the .epub extension. So since I had to do it by hand I removed this.");
 			}
+			//01/04/2014
+//			if (File.Exists (ZIP7) == true) {
+//				// now we write out a batch file
+//				string zipfile = Path.Combine (directory_to_sourcefiles, "lastzip.bat");
+//				string sourcepath = sDirectory;
+//				string zippath = sDirectory + ".epub";
+//				///<img alt="--" title="" src="images/fleuron.png" width="275" height="20"></img>
+//				StreamWriter zip = new StreamWriter (zipfile);
+//				string scommand = String.Format ("\"{0}\" a -tzip \"{1}\" \"{2}\"", ZIP7, zippath, sourcepath);
+//				zip.WriteLine (scommand);
+//				zip.Close ();
+//				// runbatch
+//				General.OpenDocument (zipfile, "");
+//			}
 			
 			if (false == SuppressMessages) {
 				NewMessage.Show ("Done!");
@@ -856,7 +876,7 @@ namespace SendTextAway
 		protected override void OnFinishedTotally ()
 		{
 			base.OnFinishedTotally ();
-			if (this.controlFile.EpubRemoveDoublePageTags == true)
+			if (this.controlFile.EpubRemoveDoublePageTags == true || this.controlFile.NovelMode == true)
 			{
 				foreach (string aFileUsed in this.files) {
 					// process the file
@@ -879,11 +899,49 @@ namespace SendTextAway
 					string sLine = source.ReadLine();
 					while (sLine != null)
 					{
-							sLine = sLine.Replace("<p></p>","<br/>");
-							// if there's a bunch of breaks together consolidate them
-							sLine = sLine.Replace ("<br/><br/><br/><br/><br/>", "<br/>");
-							sLine = sLine.Replace ("<br/><br/><br/>", "<br/>");
+							if (this.controlFile.EpubRemoveDoublePageTags == true)
+							{
+								sLine = sLine.Replace("<p></p>","<br/>");
+								// if there's a bunch of breaks together consolidate them
+								sLine = sLine.Replace ("<br/><br/><br/><br/><br/>", "<br/>");
+								sLine = sLine.Replace ("<br/><br/><br/>", "<br/>");
+							}
+							else
+							if (this.controlFile.NovelMode == true)
+							{
+								sLine = sLine.Replace("\t","<p>");
+								sLine = sLine.Replace("<p></p>","</p>");
 
+
+
+								sLine = sLine.Replace("</p></p></body>","</p></body>");
+								sLine = sLine.Replace("<div class=\"quote\"></p>","</p><div class=\"quote\"><p>");
+
+								sLine = sLine.Replace("</div></p><p>","</div><p>");
+								sLine = sLine.Replace("#</p></p><p align=","#</p><p align=");
+								sLine = sLine.Replace("</p></p><p>","</p><p>");
+								//  33 - <p><p>Watts</p></div></body>
+								sLine = sLine.Replace("<p><p>","<p>");
+
+								//need to test these fixes C27
+								sLine = sLine.Replace("</p><em>","<em>");
+
+								// test c8
+								sLine = sLine.Replace("<p></p><p>","</p><p>");
+								//test c4 / 20
+								sLine = sLine.Replace("</p><hr></hr></p>","<hr></hr>");
+								  //c 30 
+								sLine = sLine.Replace("<p></p></body>","</p></body>");
+								//c21
+								sLine = sLine.Replace("</p></p></body>","</p></body>");
+								//sLine = sLine.Replace("</p>","</p>");
+								//c35
+								sLine = sLine.Replace ("<div class=\"past\"></p>", "</p><div class=\"past\">");
+
+								// keep very end, apply other rules first -- Preface
+								sLine = sLine.Replace("</p></p></p>","");
+								sLine = sLine.Replace("</p></p>","");
+							}
 						writer.WriteLine(sLine);
 							sLine = source.ReadLine();
 
@@ -970,6 +1028,8 @@ namespace SendTextAway
 						int count = 2;
 						foreach (string s in files) {  //make navlabel nice and translate the ids
 							string navlabel = s.Replace (".xhtml", "").Trim ();
+							//26/04/2014 - don't want underscores in display name
+							navlabel = navlabel.Replace("_", " ").Trim ();
 							// for it to work on Stanza I think the filenames need underliens and not spaces
 							string sFile = s.Replace (" ", "_").Trim ();
 							
