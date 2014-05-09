@@ -32,6 +32,7 @@ using System.Text;
 using System.IO;
 using CoreUtilities;
 using System.Collections;
+
 // note: I started trying to fix this but instead created a new class to correct issues
 namespace SendTextAway
 {
@@ -43,67 +44,66 @@ namespace SendTextAway
 	public class sendePub2 : sendPlainText
 	{
 		string ZIP7 = "";//@"C:\Program Files\7-Zip\7z.exe";
-		string directory_to_sourcefiles ="";// @"C:\Users\Brent\Documents\Visual Studio 2005\Projects\SendTextAway\SendTextAway\bin\Debug\epubfiles\";
+		string directory_to_sourcefiles = "";// @"C:\Users\Brent\Documents\Visual Studio 2005\Projects\SendTextAway\SendTextAway\bin\Debug\epubfiles\";
 
 		private int NeedParagraphClosingCounter = 0;
-	//	private bool NeedParagraphClosing; // used for centering. If true the next InlineWrite will write a </p> closing tag
+		//	private bool NeedParagraphClosing; // used for centering. If true the next InlineWrite will write a </p> closing tag
 		private string sDirectory = "";
-		
 		ArrayList footnotesincurrentsection; // footnotes can be chapter, or if I can figure out a good solution the entire document
 		
 		private Hashtable ids;
 		
-		
 		public static string GetDateDirectory {
-			get { return DateTime.Today.ToString("yyyy MM dd") ;}
+			get { return DateTime.Today.ToString ("yyyy MM dd");}
 		}
+
 		protected override string HandleEmDash (string sText)
 		{
 			// we replace any existing ampersands with the code before applying Fancy
 
-				// we do not want to replace any of the FancyCharacter codes
-				// so we ensure no semi-colon.
-				// (but realistically we should not need this...)
+			// we do not want to replace any of the FancyCharacter codes
+			// so we ensure no semi-colon.
+			// (but realistically we should not need this...)
 			//sText = sText.Replace ("&", "&amp;");
 
 			return sText.Replace ("--", "&#8212;");
 		}
+
 		protected override string FixHTMLEncoding (string sText)
 		{
 			sText = sText.Replace ("&", "&amp;");
-			sText = sText.Replace ("…","...");
+			sText = sText.Replace ("…", "...");
 			// Unicode generic replacement http://stackoverflow.com/questions/1488866/how-to-replace-i-in-a-string
 			//sText = sText.Replace ("\xEF\xBF\xBD","...");
-			sText = sText.Replace("\xFFFD", "...");
+			sText = sText.Replace ("\xFFFD", "...");
 			return sText;
 		}
+
 		protected override string ReplaceFancyCharacters (string sSource)
 		{
 	
 
-			if (true == controlFile.FancyCharacters)
-			{
+			if (true == controlFile.FancyCharacters) {
 				
-				sSource = sSource.Replace(".\"", ".&#8221;");
+				sSource = sSource.Replace (".\"", ".&#8221;");
 				
-				sSource = sSource.Replace("\".", "&#8221;.");
+				sSource = sSource.Replace ("\".", "&#8221;.");
 				
 				
-				sSource = sSource.Replace("!\"", "!&#8221;");
-				sSource = sSource.Replace("?\"", "?&#8221;");
-				sSource = sSource.Replace("--\"", "--&#8221;");
+				sSource = sSource.Replace ("!\"", "!&#8221;");
+				sSource = sSource.Replace ("?\"", "?&#8221;");
+				sSource = sSource.Replace ("--\"", "--&#8221;");
 				
-				sSource = sSource.Replace("-\"", "-&#8221;");
+				sSource = sSource.Replace ("-\"", "-&#8221;");
 				
-				sSource = sSource.Replace("-- \"", "-- &#8221;");
-				sSource = sSource.Replace(",\"", ",&#8221;");
+				sSource = sSource.Replace ("-- \"", "-- &#8221;");
+				sSource = sSource.Replace (",\"", ",&#8221;");
 				// remainder of quotes will be the opposite way
-				sSource = sSource.Replace("\"", "&#8220;");
+				sSource = sSource.Replace ("\"", "&#8220;");
 				
 				// do standard repalcements (February 2010)
-				if (sSource.IndexOf("...") > -1)
-				{
-					sSource = sSource.Replace("...", "&hellip;");
+				if (sSource.IndexOf ("...") > -1) {
+					sSource = sSource.Replace ("...", "&hellip;");
 				}
 				
 				// to finish look here: http://www.unicode.org/charts/charindex.html
@@ -160,13 +160,13 @@ namespace SendTextAway
 				// copy the stock file
 				File.Copy (Path.Combine (directory_to_sourcefiles, "oebps\\stylesheet.css"), Path.Combine (sDirectory, "oebps\\stylesheet.css"), true);
 			}
-			File.Copy(Path.Combine(directory_to_sourcefiles, "oebps\\page-template.xpgt"), Path.Combine(sDirectory, "oebps\\page-template.xpgt"), true);
+			File.Copy (Path.Combine (directory_to_sourcefiles, "oebps\\page-template.xpgt"), Path.Combine (sDirectory, "oebps\\page-template.xpgt"), true);
 			
 			
-			File.Copy(Path.Combine(directory_to_sourcefiles,"META-INF\\container.xml"), Path.Combine(sDirectory, "META-INF\\container.xml"),true);
-			footnotesincurrentsection = new ArrayList();
-			FootnoteChapterIAmInHash = new Hashtable();
-			ids = new Hashtable();
+			File.Copy (Path.Combine (directory_to_sourcefiles, "META-INF\\container.xml"), Path.Combine (sDirectory, "META-INF\\container.xml"), true);
+			footnotesincurrentsection = new ArrayList ();
+			FootnoteChapterIAmInHash = new Hashtable ();
+			ids = new Hashtable ();
 			
 			
 			return 1;
@@ -179,50 +179,46 @@ namespace SendTextAway
 		/// </summary>
 		/// <param name="sTemplate"></param>
 		/// <param name="sChapterToken"></param>
-		private void InsertFromTemplate(string sTemplate, string sChapterToken)
+		private void InsertFromTemplate (string sTemplate, string sChapterToken)
 		{
-			if (null == file1)
-			{
-				throw new Exception("no file open for writing");
+			if (null == file1) {
+				throw new Exception ("no file open for writing");
 			}
 			// loads a header file
-			StreamReader header = new StreamReader(sTemplate);
-			if (null != header)
-			{
-				string line = header.ReadLine();
-				while (line != null)
-				{
-					if ("" != sChapterToken)
-					{
-						line = line.Replace("[chapter]", sChapterToken);
+			StreamReader header = new StreamReader (sTemplate);
+			if (null != header) {
+				string line = header.ReadLine ();
+				while (line != null) {
+					if ("" != sChapterToken) {
+						line = line.Replace ("[chapter]", sChapterToken);
 						
 					}
-					file1.WriteLine(line);
-					line = header.ReadLine();
+					file1.WriteLine (line);
+					line = header.ReadLine ();
 				}
 			}
-			header.Close();
-			header.Dispose();
+			header.Close ();
+			header.Dispose ();
 		}
 		/// <summary>
 		/// inserts text for header file
 		/// <param name="sChapterToken">If not "" then if we find [chapter] we replace it with sChapterToken</param>
 		/// </summary>
-		protected override void InsertHeaderForNewFile(string sChapterToken)
+		protected override void InsertHeaderForNewFile (string sChapterToken)
 		{
-			InsertFromTemplate(Path.Combine(directory_to_sourcefiles, "header.txt"), sChapterToken);
+			InsertFromTemplate (Path.Combine (directory_to_sourcefiles, "header.txt"), sChapterToken);
 			
 		}
 		
-		protected override void InsertFooterorNewFile(string sChapterToken)
+		protected override void InsertFooterorNewFile (string sChapterToken)
 		{
-			InsertFromTemplate(Path.Combine(directory_to_sourcefiles, "footer.txt"), sChapterToken);
+			InsertFromTemplate (Path.Combine (directory_to_sourcefiles, "footer.txt"), sChapterToken);
 		}
 		
 		/// <summary>
 		/// current chapter file being closed off
 		/// </summary>
-		protected override void CloseCurrentFile()
+		protected override void CloseCurrentFile ()
 		{
 			
 
@@ -232,13 +228,14 @@ namespace SendTextAway
 			
 			
 		
-			base.CloseCurrentFile();
+			base.CloseCurrentFile ();
 			
 			
 			
 			
 			
 		}
+
 		private int TabParagraph = 0; // count how many <p> tagsa we've introduce through plain, unformatted text
 		/// <summary>
 		/// While processing linline formatting (bold, et cetera), this is used to write out a line of text
@@ -296,7 +293,8 @@ namespace SendTextAway
 					NeedParagraphClosingCounter--;
 				}
 			}
-			string sLine = sText + paragraphclosers;;
+			string sLine = sText + paragraphclosers;
+			;
 			//sLine = String.Format(sLine, sText);
 
 			/* I do not know what this is For Feb 4 2014
@@ -306,10 +304,10 @@ namespace SendTextAway
 
 
 
-			file1.Write(sLine);
+			file1.Write (sLine);
 
 
-			DoErrorTest(sLine);
+			DoErrorTest (sLine);
 			//oSelection.TypeText(sText);
 		}
 //		private bool IsFormating (string sTag)
@@ -321,9 +319,10 @@ namespace SendTextAway
 //			return false;
 //		}
 		private string lastmultiline = "";
-		protected override bool AddStartMultiLineFormat(string sFormatType)
+
+		protected override bool AddStartMultiLineFormat (string sFormatType)
 		{
-			InlineWrite("<div class=\"" + sFormatType + "\">");
+			InlineWrite ("<div class=\"" + sFormatType + "\">");
 			lastmultiline = sFormatType;
 			return true;
 		}
@@ -332,50 +331,44 @@ namespace SendTextAway
 		/// resets the formatting of a multi line format to normal format
 		/// </summary>
 		/// <returns></returns>
-		protected override void AddEndMultiLineFormat()
+		protected override void AddEndMultiLineFormat ()
 		{
-			if ("" != lastmultiline)
-			{
+			if ("" != lastmultiline) {
 				//InlineWrite("</"+lastmultiline+">");
-				InlineWrite("</div>");
+				InlineWrite ("</div>");
 			}
 		}
 		
 		bool adding_table;
 		bool adding_row_to_table; // while adding row we don't put a /table
-		protected override void AddTable(string sText)
+		protected override void AddTable (string sText)
 		{
-			if (false == adding_table)
-			{
+			if (false == adding_table) {
 				adding_table = true;
-				file1.WriteLine("<table border=\"1\">");
+				file1.WriteLine ("<table border=\"1\">");
 			}
 			// NewMessage.Show("Unimplemented");   
-			string[] Cols = sText.Split(new string[1] { "||" }, StringSplitOptions.RemoveEmptyEntries);
-			if (Cols != null && Cols.Length > 0)
-			{
-				file1.WriteLine("<tr>");
-				foreach (string s in Cols)
-				{
-					if (String.Empty != s && " " != s)
-					{
-						file1.WriteLine("<td>");
+			string[] Cols = sText.Split (new string[1] { "||" }, StringSplitOptions.RemoveEmptyEntries);
+			if (Cols != null && Cols.Length > 0) {
+				file1.WriteLine ("<tr>");
+				foreach (string s in Cols) {
+					if (String.Empty != s && " " != s) {
+						file1.WriteLine ("<td>");
 						adding_row_to_table = true;
-						FormatRestOfText(s);
+						FormatRestOfText (s);
 						adding_row_to_table = false;
 						
-						file1.WriteLine("</td>");
+						file1.WriteLine ("</td>");
 					}
 				}
-				file1.WriteLine("</tr>");
+				file1.WriteLine ("</tr>");
 			}
 			
 		}
 		
-		
-		protected override void AddBullets(string sText)
+		protected override void AddBullets (string sText)
 		{
-			AddAnyBullet(sText, "<ul>", "</ul>", "*");
+			AddAnyBullet (sText, "<ul>", "</ul>", "*");
 			/*
             if ("" == startnormalbullet)
             {
@@ -400,14 +393,151 @@ namespace SendTextAway
 		string startnormalbullet = "";
 		bool adding_bullet_now = false;
 		int highestbulletlevel = 0;
-		
+
+		public static int CountCharacters (string source, char match)
+		{
+			return CountCharacters (source, match, false);
+		}
 		/// <summary>
-		/// Got 2 levels of bullets working -- will have to generalize for more
+		/// Counts the characters.
 		/// </summary>
-		/// <param name="sText"></param>
-		/// <param name="sStartCode"></param>
-		/// <param name="sEndCode"></param>
-		/// <param name="sBulletSymbol"></param>
+		/// <returns>
+		/// The characters.
+		/// </returns>
+		/// <param name='source'>
+		/// Source.
+		/// </param>
+		/// <param name='match'>
+		/// Match.
+		/// </param>
+		/// <param name='continuous'>
+		/// If set to <c>true</c> continuous.
+		/// </param>
+		public static int CountCharacters (string source, char match, bool continuous)
+		{
+			int count = 0;
+			bool countstarted = false;
+
+			for (int i = 0; i < source.Length; i++) {
+							
+
+				char c = source [i];
+				if (c == match) {
+								
+
+					countstarted = true;
+					count++;
+				} else {
+					if (countstarted && continuous) {
+						// we have hit a NON-match and are doing a continous search
+						// that means our count is finished.
+						break;
+					}
+				}
+			}
+			return count;
+		}
+
+//		/// <summary>
+//		/// Got 2 levels of bullets working -- will have to generalize for more
+//		/// </summary>
+//		/// <param name="sText"></param>
+//		/// <param name="sStartCode"></param>
+//		/// <param name="sEndCode"></param>
+//		/// <param name="sBulletSymbol"></param>
+//		private void AddAnyBullet (string sText, string sStartCode, string sEndCode, string sBulletSymbol)
+//		{
+//			AddAnyBulletOld(sText, sStartCode, sEndCode, sBulletSymbol); return;
+//			if ("" == startnormalbullet) {
+//				
+//				file1.Write (sStartCode);
+//				startnormalbullet = sEndCode;
+//			}
+//			int CountOfBullets = -1;
+//			if (sText.StartsWith (sBulletSymbol))
+//			{
+//				// we must have at least one * at the start to bother counting.
+//				CountOfBullets = CountCharacters (sText, sBulletSymbol [0], true);
+//				if (CountOfBullets > 3)
+//					CountOfBullets = 3;
+//			}
+//			if (CountOfBullets > 0) {
+//
+//				file1.Write (String.Format ("Count = {0}, HighestbulletLevel = {1}", CountOfBullets, highestbulletlevel));
+//				while (highestbulletlevel > CountOfBullets) {
+//					// add /ol
+//					file1.Write (sEndCode);
+//					highestbulletlevel--;
+//				}
+//
+//				// we only right a start tag if we are the first bullet on this level
+//				if (CountOfBullets != highestbulletlevel && CountOfBullets > 1) {
+//
+//					file1.Write (sStartCode);
+//				}
+//				highestbulletlevel = CountOfBullets;
+//			}
+//
+////			if (sText.StartsWith (sBulletSymbol + sBulletSymbol + sBulletSymbol)) {
+////				if (3 != highestbulletlevel) {
+////					file1.Write (sStartCode);
+////				}
+////				highestbulletlevel = 3;
+////			} else
+////				if (sText.StartsWith (sBulletSymbol + sBulletSymbol)) {
+////
+////				while (highestbulletlevel > 2) {
+////					// add /ol
+////					file1.Write (sEndCode);
+////					highestbulletlevel--;
+////				}
+////
+////
+////				if (2 != highestbulletlevel) {
+////					file1.Write (sStartCode);
+////				}
+////				highestbulletlevel = 2;
+////			} else if (sText.StartsWith (sBulletSymbol)) {
+////				// set back to 1
+////				// because we were at a higher number and now we are a lower number
+////				while (highestbulletlevel > 1) {
+////					// add /ol
+////					file1.Write (sEndCode);
+////					highestbulletlevel--;
+////				}
+////				highestbulletlevel = 1;
+////			}
+//			sText = sText.TrimStart (sBulletSymbol [0]).Trim ();
+//
+//			// Hotfix May 2013
+//			// By adding an empty * to the end of a list we can have a list end, without text between it and the ntext section
+//			// previoulsy this would mix up the tags. 
+//			if (sText != "") {
+//				file1.Write (String.Format ("<li>"));
+//			
+//				// have to do this to allow formating to appear on the line
+//				adding_bullet_now = true;
+//				FormatRestOfText (sText);
+//				adding_bullet_now = false;
+//				file1.Write ("</li>");
+//			}
+//		}
+		private void MinorHandlerForBullets (int Counted, string sStartCode, string sEndCode)
+		{
+			// set back to 1
+			// because we were at a higher number and now we are a lower number
+			while (highestbulletlevel >Counted) {
+				// add /ol
+				file1.Write (sEndCode);
+				highestbulletlevel--;
+			}
+			if (Counted != highestbulletlevel && Counted != 1) {
+				file1.Write (sStartCode);
+			}
+			highestbulletlevel = Counted;
+		}
+
+		// 08/05/2014 -- original, working to level 3 code before I tried going to infinite
 		private void AddAnyBullet (string sText, string sStartCode, string sEndCode, string sBulletSymbol)
 		{
 			if ("" == startnormalbullet) {
@@ -415,44 +545,65 @@ namespace SendTextAway
 				file1.Write (sStartCode);
 				startnormalbullet = sEndCode;
 			}
-			
-			if (sText.StartsWith (sBulletSymbol + sBulletSymbol + sBulletSymbol)) {
-				if (3 != highestbulletlevel) {
-					file1.Write (sStartCode);
-				}
-				highestbulletlevel = 3;
-			} else
-				if (sText.StartsWith (sBulletSymbol + sBulletSymbol)) {
+			int Counted = CountCharacters (sText, sBulletSymbol [0], true);
+			//	if (sText.StartsWith (sBulletSymbol + sBulletSymbol + sBulletSymbol)) {
 
-				while (highestbulletlevel > 2) {
-					// add /ol
-					file1.Write (sEndCode);
-					highestbulletlevel--;
-				}
+			if (Counted > 0) {
+				MinorHandlerForBullets(Counted, sStartCode, sEndCode);
+//				if (Counted == 4) {
+//					MinorHandlerForBullets(Counted, sStartCode, sEndCode);
+//				}
+//				else
+//
+//				if (Counted == 3) {
+//					MinorHandlerForBullets(Counted, sStartCode, sEndCode);
+////					while (highestbulletlevel > Counted) {
+////						// add /ol
+////						file1.Write (sEndCode);
+////						highestbulletlevel--;
+////					}
+////
+////					if (Counted != highestbulletlevel) {
+////						file1.Write (sStartCode);
+////					}
+////					highestbulletlevel = Counted;
+//				} else if (Counted == 2) {
+//					MinorHandlerForBullets(Counted, sStartCode, sEndCode);
+//				
+////					while (highestbulletlevel > Counted) {
+////						// add /ol
+////						file1.Write (sEndCode);
+////						highestbulletlevel--;
+////					}
+////				
+////				
+////					if (2 != highestbulletlevel) {
+////						file1.Write (sStartCode);
+////					}
+////					highestbulletlevel = Counted;
+//				} else if (Counted == 1) {
+//			
+//					MinorHandlerForBullets(Counted, sStartCode, sEndCode);
+////					// set back to 1
+////					// because we were at a higher number and now we are a lower number
+////					while (highestbulletlevel >Counted) {
+////						// add /ol
+////						file1.Write (sEndCode);
+////						highestbulletlevel--;
+////					}
+////					highestbulletlevel = Counted;
+//				}
 
-
-				if (2 != highestbulletlevel) {
-					file1.Write (sStartCode);
-				}
-				highestbulletlevel = 2;
-			} else if (sText.StartsWith (sBulletSymbol)) {
-				// set back to 1
-				// because we were at a higher number and now we are a lower number
-				while (highestbulletlevel > 1) {
-					// add /ol
-					file1.Write (sEndCode);
-					highestbulletlevel--;
-				}
-				highestbulletlevel = 1;
 			}
-			sText = sText.TrimStart (sBulletSymbol [0]).Trim ();
 
+			sText = sText.TrimStart (sBulletSymbol [0]).Trim ();
+			
 			// Hotfix May 2013
 			// By adding an empty * to the end of a list we can have a list end, without text between it and the ntext section
 			// previoulsy this would mix up the tags. 
 			if (sText != "") {
 				file1.Write (String.Format ("<li>"));
-			
+				
 				// have to do this to allow formating to appear on the line
 				adding_bullet_now = true;
 				FormatRestOfText (sText);
@@ -460,21 +611,20 @@ namespace SendTextAway
 				file1.Write ("</li>");
 			}
 		}
-		
 		/// <summary>
 		/// Downt he road I probably want multileleve
 		/// http://www.w3.org/TR/html401/struct/lists.html
 		/// </summary>
 		/// <param name="sText"></param>
-		protected override void AddNumberedBullets(string sText)
+		protected override void AddNumberedBullets (string sText)
 		{
 			
-			AddAnyBullet(sText, "<ol>", "</ol>","#");
+			AddAnyBullet (sText, "<ol>", "</ol>", "#");
 			// NewMessage.Show("Unimplemented"); 
 			
 		}
 		
-		protected override void AddTableOfContents()
+		protected override void AddTableOfContents ()
 		{
 			// not implemented
 		}
@@ -487,50 +637,53 @@ namespace SendTextAway
 		/// 2 - Right
 		/// </summary>
 		/// <param name="nAlignment"></param>
-		protected override void AlignText(int nAlignment)
+		protected override void AlignText (int nAlignment)
 		{
 			// May 2013 - changed this to a counter because someties we have alignments happening really tight together
 			NeedParagraphClosingCounter++;
 			//NeedParagraphClosing = true;
-			switch (nAlignment)
-			{
-				// February 2013 - does every P break require a closing because of the pattern I've already established?
-				// May 2013 - these don't seem to be causing recent crop of errors [Nope: rejected. We cover this already with NeedParagraph Closing
-			case 0: file1.WriteLine("<p align=\"center\">"); TabParagraph++; break;
-			case 1: file1.WriteLine("<p align=\"left\">"); TabParagraph++;break;  
-			case 2: file1.WriteLine("<p align=\"right\">"); TabParagraph++;break;
+			switch (nAlignment) {
+			// February 2013 - does every P break require a closing because of the pattern I've already established?
+			// May 2013 - these don't seem to be causing recent crop of errors [Nope: rejected. We cover this already with NeedParagraph Closing
+			case 0:
+				file1.WriteLine ("<p align=\"center\">");
+				TabParagraph++;
+				break;
+			case 1:
+				file1.WriteLine ("<p align=\"left\">");
+				TabParagraph++;
+				break;  
+			case 2:
+				file1.WriteLine ("<p align=\"right\">");
+				TabParagraph++;
+				break;
 			}
 		}
 		
-		protected override void InlineStrikeThrough(int nValue)
+		protected override void InlineStrikeThrough (int nValue)
 		{
-			if (nValue > 0)
-			{
+			if (nValue > 0) {
 				IsFormating = true;
-				InlineWrite("<strike>");
-			}
-			else
-			{
-				InlineWrite("</strike>");
+				InlineWrite ("<strike>");
+			} else {
+				InlineWrite ("</strike>");
 				IsFormating = false;
 			}
 		}
+
 		private bool IsFormating = false;
 		/// <summary>
 		/// nvalue is ignored for underline
 		/// </summary>
 		/// <param name="nValue"></param>
-		protected override void InlineUnderline(int nValue)
+		protected override void InlineUnderline (int nValue)
 		{
-			if (nValue > 0)
-			{
+			if (nValue > 0) {
 				IsFormating = true;
-				InlineWrite("<u>");
+				InlineWrite ("<u>");
 
-			}
-			else
-			{
-				InlineWrite("</u>");
+			} else {
+				InlineWrite ("</u>");
 				IsFormating = false;
 			}
 		}
@@ -539,17 +692,14 @@ namespace SendTextAway
 		/// nvalue is ignored for underline
 		/// </summary>
 		/// <param name="nValue"></param>
-		protected override void InlineSuper(int nValue)
+		protected override void InlineSuper (int nValue)
 		{
-			if (nValue > 0)
-			{
+			if (nValue > 0) {
 				IsFormating = true;
-				InlineWrite("<sup>");
-			}
-			else
-			{
+				InlineWrite ("<sup>");
+			} else {
 
-				InlineWrite("</sup>");
+				InlineWrite ("</sup>");
 				IsFormating = false;
 			}
 		}
@@ -558,25 +708,22 @@ namespace SendTextAway
 		/// nvalue is ignored for underline
 		/// </summary>
 		/// <param name="nValue"></param>
-		protected override void InlineSub(int nValue)
+		protected override void InlineSub (int nValue)
 		{
-			if (nValue > 0)
-			{
+			if (nValue > 0) {
 				IsFormating = true;
-				InlineWrite("<sub>");
-			}
-			else
-			{
-				InlineWrite("</sub>");
+				InlineWrite ("<sub>");
+			} else {
+				InlineWrite ("</sub>");
 				IsFormating = false;
 			}
 		}
 		
-		protected override void AddBookmark(string sBookmark)
+		protected override void AddBookmark (string sBookmark)
 		{
-			sBookmark = sBookmark.Trim();
+			sBookmark = sBookmark.Trim ();
 			// decided not to show anchor text THOUGH we might want the {1} displayed for the footnote (but not the return)
-			InlineWrite("<a name=\""+sBookmark+"\"></a>");
+			InlineWrite ("<a name=\"" + sBookmark + "\"></a>");
 			
 			
 		}
@@ -599,18 +746,18 @@ namespace SendTextAway
 				// first we copy the file to the location
 				File.Copy (sPathToFile, Path.Combine (newDirectory, FileName));
 				// just in root directory we just set the reference to the file directly
-				InlineWrite ("<img src=\"" + FileName +"\""+ " alt=\""+FileName+"\"/>");
+				InlineWrite ("<img src=\"" + FileName + "\"" + " alt=\"" + FileName + "\"/>");
 			}
 		}
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="sPathToFile"></param>
-		protected override void AddLink(string sPathToFile, string sTitle)
+		protected override void AddLink (string sPathToFile, string sTitle)
 		{
 			string oTextToShow = sTitle;
 			string oLink = sPathToFile;
-			InlineWrite("<a href=\"" + oLink + "\">" + oTextToShow + "</a>");
+			InlineWrite ("<a href=\"" + oLink + "\">" + oTextToShow + "</a>");
 			
 		}
 		
@@ -618,11 +765,11 @@ namespace SendTextAway
 		/// To do: Make AddTitle part of base
 		/// </summary>
 		/// <param name="sText"></param>
-		protected override string AddTitle(string sText)
+		protected override string AddTitle (string sText)
 		{
-			sText = base.AddTitle(sText);
+			sText = base.AddTitle (sText);
 			
-			InlineWrite(String.Format("<h1>{0}</h1>", sText));
+			InlineWrite (String.Format ("<h1>{0}</h1>", sText));
 			return sText;
 			
 		}
@@ -633,22 +780,22 @@ namespace SendTextAway
 		/// adding the link to the footnote whcih will be elsewhere
 		/// </summary>
 		/// <param name="sID"></param>
-		protected override void AddFootnote(string sID)
+		protected override void AddFootnote (string sID)
 		{
-			sID = sID.Trim();
+			sID = sID.Trim ();
 			// we simply add the LINK
-			string link = String.Format("<a name=\"back{0}\"></a><a href=\"footnotes.xhtml#{0}\"><sup>(NOTE)</sup></a>",sID);
+			string link = String.Format ("<a name=\"back{0}\"></a><a href=\"footnotes.xhtml#{0}\"><sup>(NOTE)</sup></a>", sID);
 			
 			// for it to work on Stanza I think the filenames need underliens and not spaces
 			// off by one error with chapter (it is set to 'next' chaper) so we reset it and put it back
 			chapter = chapter - 1;
-			string sFile = chaptertoken.Replace(" ", "_").Trim()+".xhtml";
+			string sFile = chaptertoken.Replace (" ", "_").Trim () + ".xhtml";
 			chapter = chapter + 1;
 			// we add to a second lookup hash that jsut contains Key|Chapter that can be used when the footnotes are written up to create links to that chapter
-			FootnoteChapterIAmInHash.Add(sID, sFile);
+			FootnoteChapterIAmInHash.Add (sID, sFile);
 			
-			InlineWrite(link);
-			footnotesincurrentsection.Add(sID);
+			InlineWrite (link);
+			footnotesincurrentsection.Add (sID);
 			
 		}
 		
@@ -659,86 +806,75 @@ namespace SendTextAway
 		/// Writes out the footnote indicated
 		/// </summary>
 		/// <param name="sID"></param>
-		protected  void AddActualFootnote(string sID)
+		protected  void AddActualFootnote (string sID)
 		{
 			
 			
-			sID = sID.Trim();
-			if (FootnoteHash.ContainsKey(sID) == true)
-			{
+			sID = sID.Trim ();
+			if (FootnoteHash.ContainsKey (sID) == true) {
 				
 				
-				string sSource = (string)FootnoteHash[sID];
+				string sSource = (string)FootnoteHash [sID];
 				
-				sSource = sSource.Replace("<br>", "<br></br>");
+				sSource = sSource.Replace ("<br>", "<br></br>");
 				// process text lienfeed
 				
 				object sText = sSource;
 				object id = (object)sID;
 				
 				string chapterfile = "";
-				if (FootnoteChapterIAmInHash.ContainsKey(sID) == true)
-				{
+				if (FootnoteChapterIAmInHash.ContainsKey (sID) == true) {
 					// now we grab a full chapter like chapter_7.xhtml
-					chapterfile = FootnoteChapterIAmInHash[sID].ToString();
+					chapterfile = FootnoteChapterIAmInHash [sID].ToString ();
 					
 				}
 				
-				string link = String.Format("<span id=\"{0}\" class=\"footnote\">{1}<a class=\"EndNoteBackLink\" href=\"{2}#back{0}\">  <img class=\"Return\" alt=\"Return to Link Button\" src=\"images/return.png\" /></a></span><br></br>", sID, sText, chapterfile);
+				string link = String.Format ("<span id=\"{0}\" class=\"footnote\">{1}<a class=\"EndNoteBackLink\" href=\"{2}#back{0}\">  <img class=\"Return\" alt=\"Return to Link Button\" src=\"images/return.png\" /></a></span><br></br>", sID, sText, chapterfile);
 				
 				
 				
-				if (controlFile.ShowFootNoteChapter == true)
-				{
-					link = " (" + chapterfile + ")  " + link ;
+				if (controlFile.ShowFootNoteChapter == true) {
+					link = " (" + chapterfile + ")  " + link;
 				}
 				
-				InlineWrite(link);
-			}
-			
-			else
-			{
-				NewMessage.Show(String.Format("{0} footnote not found!", sID));
+				InlineWrite (link);
+			} else {
+				NewMessage.Show (String.Format ("{0} footnote not found!", sID));
 			}
 			//   remember we need to have fancy formating and a return link and a Large name like NOTE that can be clicked on ipod
 		}
 	
-		protected override void OnTitleChange()
+		protected override void OnTitleChange ()
 		{
 			// here we break off and start a new file
-			CloseCurrentFile();
-			currentFileBeingWritten = Path.Combine(sDirectory, String.Format("oebps\\Chapter_{0}.xhtml", chapter.ToString()));
-			StartNewFile(currentFileBeingWritten);
+			CloseCurrentFile ();
+			currentFileBeingWritten = Path.Combine (sDirectory, String.Format ("oebps\\Chapter_{0}.xhtml", chapter.ToString ()));
+			StartNewFile (currentFileBeingWritten);
 		}
+
 		bool WeHadABold = false;
-		protected override void InlineBold(int nValue)
+
+		protected override void InlineBold (int nValue)
 		{
-			if (nValue > 0)
-			{
-				InlineWrite("<b>");
+			if (nValue > 0) {
+				InlineWrite ("<b>");
 				WeHadABold = true;
-			}
-			else
-			{
-				if (true == WeHadABold)
-				{
+			} else {
+				if (true == WeHadABold) {
 					WeHadABold = false;
 					//NewMessage.Show("Closing bold");
-					InlineWrite("</b>");
+					InlineWrite ("</b>");
 				}
 			}
 		}
 		
-		protected override void InlineItalic(int nValue)
+		protected override void InlineItalic (int nValue)
 		{
-			if (nValue > 0)
-			{
+			if (nValue > 0) {
 				IsFormating = true;
-				InlineWrite("<em>");
-			}
-			else
-			{
-				InlineWrite("</em>");
+				InlineWrite ("<em>");
+			} else {
+				InlineWrite ("</em>");
 				IsFormating = false;
 			}
 			
@@ -749,7 +885,7 @@ namespace SendTextAway
 		/// </summary>
 		/// <param name="sText"></param>
 		/// <param name="nLevel">Heading level 1..4</param>
-		protected override void AddHeader(string sText, int nLevel)
+		protected override void AddHeader (string sText, int nLevel)
 		{
 			
 			
@@ -758,23 +894,35 @@ namespace SendTextAway
 			
 			
 			string slevel = "1";
-			switch (nLevel)
-			{
-			case 1: slevel = "1"; ; break;
-			case 2: slevel = "2"; ; break;
-			case 3: slevel = "3"; ; break;
-			case 4: slevel = "4"; ; break;
-			case 5: slevel = "5"; ; break;
+			switch (nLevel) {
+			case 1:
+				slevel = "1";
+				;
+				break;
+			case 2:
+				slevel = "2";
+				;
+				break;
+			case 3:
+				slevel = "3";
+				;
+				break;
+			case 4:
+				slevel = "4";
+				;
+				break;
+			case 5:
+				slevel = "5";
+				;
+				break;
 			}
-			InlineWrite(String.Format("<h{0}>{1}</h{0}>", slevel, sText));
+			InlineWrite (String.Format ("<h{0}>{1}</h{0}>", slevel, sText));
 			
 		}
 		
-		
-		
-		protected override void AddPageBreak()
+		protected override void AddPageBreak ()
 		{
-			InlineWrite("<hr></hr>");
+			InlineWrite ("<hr></hr>");
 		}
 		
 		
@@ -876,83 +1024,77 @@ namespace SendTextAway
 		protected override void OnFinishedTotally ()
 		{
 			base.OnFinishedTotally ();
-			if (this.controlFile.EpubRemoveDoublePageTags == true || this.controlFile.NovelMode == true)
-			{
+			if (this.controlFile.EpubRemoveDoublePageTags == true || this.controlFile.NovelMode == true) {
 				foreach (string aFileUsed in this.files) {
 					// process the file
 
-					string SourceFile = Path.Combine (controlFile.OutputDirectory + "\\" +GetDateDirectory, "oebps\\" + aFileUsed);
+					string SourceFile = Path.Combine (controlFile.OutputDirectory + "\\" + GetDateDirectory, "oebps\\" + aFileUsed);
 
 					//NewMessage.Show (SourceFile);
 					//rename file
-					if (File.Exists (SourceFile))
-					 {
-						System.IO.File.Move (SourceFile, SourceFile+"2");
+					if (File.Exists (SourceFile)) {
+						System.IO.File.Move (SourceFile, SourceFile + "2");
 
-					// open filesource
-						StreamReader source = new StreamReader(SourceFile+"2");
+						// open filesource
+						StreamReader source = new StreamReader (SourceFile + "2");
 					
 
-					// openfiledest with name of old file
-						StreamWriter writer = new StreamWriter(SourceFile);
-					// copy
-					string sLine = source.ReadLine();
-					while (sLine != null)
-					{
-							if (this.controlFile.EpubRemoveDoublePageTags == true)
-							{
-								sLine = sLine.Replace("<p></p>","<br/>");
+						// openfiledest with name of old file
+						StreamWriter writer = new StreamWriter (SourceFile);
+						// copy
+						string sLine = source.ReadLine ();
+						while (sLine != null) {
+							if (this.controlFile.EpubRemoveDoublePageTags == true) {
+								sLine = sLine.Replace ("<p></p>", "<br/>");
 								// if there's a bunch of breaks together consolidate them
 								sLine = sLine.Replace ("<br/><br/><br/><br/><br/>", "<br/>");
 								sLine = sLine.Replace ("<br/><br/><br/>", "<br/>");
-							}
-							else
-							if (this.controlFile.NovelMode == true)
-							{
-								sLine = sLine.Replace("\t","<p>");
-								sLine = sLine.Replace("<p></p>","</p>");
+							} else
+							if (this.controlFile.NovelMode == true) {
+								sLine = sLine.Replace ("\t", "<p>");
+								sLine = sLine.Replace ("<p></p>", "</p>");
 
 
 
-								sLine = sLine.Replace("</p></p></body>","</p></body>");
-								sLine = sLine.Replace("<div class=\"quote\"></p>","</p><div class=\"quote\"><p>");
+								sLine = sLine.Replace ("</p></p></body>", "</p></body>");
+								sLine = sLine.Replace ("<div class=\"quote\"></p>", "</p><div class=\"quote\"><p>");
 
-								sLine = sLine.Replace("</div></p><p>","</div><p>");
-								sLine = sLine.Replace("#</p></p><p align=","#</p><p align=");
-								sLine = sLine.Replace("</p></p><p>","</p><p>");
+								sLine = sLine.Replace ("</div></p><p>", "</div><p>");
+								sLine = sLine.Replace ("#</p></p><p align=", "#</p><p align=");
+								sLine = sLine.Replace ("</p></p><p>", "</p><p>");
 								//  33 - <p><p>Watts</p></div></body>
-								sLine = sLine.Replace("<p><p>","<p>");
+								sLine = sLine.Replace ("<p><p>", "<p>");
 
 								//need to test these fixes C27
-								sLine = sLine.Replace("</p><em>","<em>");
+								sLine = sLine.Replace ("</p><em>", "<em>");
 
 								// test c8
-								sLine = sLine.Replace("<p></p><p>","</p><p>");
+								sLine = sLine.Replace ("<p></p><p>", "</p><p>");
 								//test c4 / 20
-								sLine = sLine.Replace("</p><hr></hr></p>","<hr></hr>");
-								  //c 30 
-								sLine = sLine.Replace("<p></p></body>","</p></body>");
+								sLine = sLine.Replace ("</p><hr></hr></p>", "<hr></hr>");
+								//c 30 
+								sLine = sLine.Replace ("<p></p></body>", "</p></body>");
 								//c21
-								sLine = sLine.Replace("</p></p></body>","</p></body>");
+								sLine = sLine.Replace ("</p></p></body>", "</p></body>");
 								//sLine = sLine.Replace("</p>","</p>");
 								//c35
 								sLine = sLine.Replace ("<div class=\"past\"></p>", "</p><div class=\"past\">");
 
 								// keep very end, apply other rules first -- Preface
-								sLine = sLine.Replace("</p></p></p>","");
-								sLine = sLine.Replace("</p></p>","");
+								sLine = sLine.Replace ("</p></p></p>", "");
+								sLine = sLine.Replace ("</p></p>", "");
 							}
-						writer.WriteLine(sLine);
-							sLine = source.ReadLine();
+							writer.WriteLine (sLine);
+							sLine = source.ReadLine ();
 
 						
-					}
+						}
 						//writer.WriteLine("hi");
-					//close
-					source.Close();
-					writer.Close();
-					// delete source
-						File.Delete (SourceFile+"2");
+						//close
+						source.Close ();
+						writer.Close ();
+						// delete source
+						File.Delete (SourceFile + "2");
 					}
 				}
 			}
@@ -1029,7 +1171,7 @@ namespace SendTextAway
 						foreach (string s in files) {  //make navlabel nice and translate the ids
 							string navlabel = s.Replace (".xhtml", "").Trim ();
 							//26/04/2014 - don't want underscores in display name
-							navlabel = navlabel.Replace("_", " ").Trim ();
+							navlabel = navlabel.Replace ("_", " ").Trim ();
 							// for it to work on Stanza I think the filenames need underliens and not spaces
 							string sFile = s.Replace (" ", "_").Trim ();
 							
@@ -1046,40 +1188,40 @@ namespace SendTextAway
 			
 
 			
-			//
-			// now we write the actual TOC file that is inserted at front of book
-			//
-			reader = new StreamReader (Path.Combine (directory_to_sourcefiles, "oebps\\template_toc.xhtml"));
-			writer = new StreamWriter (Path.Combine (sDirectory, "oebps\\toc.xhtml"));
-			line = null;
+				//
+				// now we write the actual TOC file that is inserted at front of book
+				//
+				reader = new StreamReader (Path.Combine (directory_to_sourcefiles, "oebps\\template_toc.xhtml"));
+				writer = new StreamWriter (Path.Combine (sDirectory, "oebps\\toc.xhtml"));
+				line = null;
 			
-			line = reader.ReadLine ();
-			while (line != null) {
-				// TO DO parse IDs from the ID database
-				line = ParseLineForId (line);
-				writer.WriteLine (line);
-				
 				line = reader.ReadLine ();
+				while (line != null) {
+					// TO DO parse IDs from the ID database
+					line = ParseLineForId (line);
+					writer.WriteLine (line);
 				
-				if (line == "[chaptersstart]") {
-					int count = 2;
-					foreach (string s in files) {  //make navlabel nice and translate the ids
-						string navlabel = s.Replace (".xhtml", "").Trim ();
+					line = reader.ReadLine ();
+				
+					if (line == "[chaptersstart]") {
+						int count = 2;
+						foreach (string s in files) {  //make navlabel nice and translate the ids
+							string navlabel = s.Replace (".xhtml", "").Trim ();
 							navlabel = navlabel.Replace ("_", " ").ToUpper ();
 
-						// for it to work on Stanza I think the filenames need underliens and not spaces
-						string sFile = s;// s.Replace(" ", "_").Trim();
-						writer.WriteLine (String.Format ("<p><a href=\"{0}\">{1}</a></p>",
+							// for it to work on Stanza I think the filenames need underliens and not spaces
+							string sFile = s;// s.Replace(" ", "_").Trim();
+							writer.WriteLine (String.Format ("<p><a href=\"{0}\">{1}</a></p>",
 						                               sFile, navlabel));
 
 
-						count++;
+							count++;
+						}
+						line = reader.ReadLine ();
 					}
-					line = reader.ReadLine ();
 				}
-			}
-			reader.Close ();
-			writer.Close ();
+				reader.Close ();
+				writer.Close ();
 		
 			
 			}
@@ -1091,15 +1233,13 @@ namespace SendTextAway
 		/// </summary>
 		/// <param name="line"></param>
 		/// <returns></returns>
-		private string ParseLineForId(string line)
+		private string ParseLineForId (string line)
 		{
 			// this outer if is just to save some performance time
-			if (line.IndexOf("[") > -1)
-			{
-				foreach (string key in ids.Keys)
-				{
-					string label = String.Format("[{0}]", key);
-					line = line.Replace(label, ids[key].ToString());
+			if (line.IndexOf ("[") > -1) {
+				foreach (string key in ids.Keys) {
+					string label = String.Format ("[{0}]", key);
+					line = line.Replace (label, ids [key].ToString ());
 				}
 			}
 			return line;
@@ -1110,13 +1250,13 @@ namespace SendTextAway
 		/// </summary>
 		/// <param name="id"></param>
 		/// <param name="idtext"></param>
-		protected override void AddId(string id, string idtext)
+		protected override void AddId (string id, string idtext)
 		{
-			if (ids.ContainsKey(id) == false)
-			{
-				ids.Add(id, idtext);
+			if (ids.ContainsKey (id) == false) {
+				ids.Add (id, idtext);
 			}
 		}
+
 		public override string ToString ()
 		{
 			return string.Format ("[sendePub]");

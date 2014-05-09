@@ -62,6 +62,7 @@ namespace MefAddIns
 		public string Version
 		{
 			// Version History
+			// 1.0.6.0 - Attempting to handle multilevel (past 3) generically
 			// 1.0.5.0 - handling 3rd level bullet points and backing out properly
 			// 1.0.4.0 - trying to make Novels appear with lines indented (instead of flush-left). 01/05/2014
 			// 1.0.3.0 - remove UNDERSCORES from Table of COntents -- what we show
