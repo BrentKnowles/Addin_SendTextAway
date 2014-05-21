@@ -661,7 +661,11 @@ namespace SendTextAway
                                                     sBoldText = "";
                                                 }
                                                 else
-                                                    if (sBoldText.IndexOf("##") > -1    ||
+                                                    if (
+														// for direct file references
+														sBoldText.IndexOf("./") > -1    ||
+														// for anchors/bookmarks
+														sBoldText.IndexOf("##") > -1    ||
                                                         sBoldText.IndexOf("www.") > -1  ||
                                                         sBoldText.IndexOf("http:") > -1 ||
 														sBoldText.IndexOf("https:") > -1)
@@ -722,6 +726,11 @@ namespace SendTextAway
                                                             AlignText(2);
                                                             sBoldText = ""; /// June 2011 process remainder FAILED, GAVE UP
                                                         }
+														else if (sBoldText.IndexOf("~breakcomment") > -1) //21/05/2014
+														{
+							InlineWrite ("<!--break-->");
+							sBoldText = "";
+														}
                                                         else // failed gave up
                                                 // June 2 2011 - intentionally removed the else here
                                                 // because these formats should work with others
