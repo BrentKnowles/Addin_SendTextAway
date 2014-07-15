@@ -68,8 +68,44 @@ namespace SendTextAway
 				overrideStyleSheet = value;
 			}
 		}
+		private int chapterTitleOffset = -1;
+		/// <summary>
+		/// Gets or sets the chapter title offset.
+		/// 
+		/// For books that start with a Prelude (no title), we use this to offset the titling
+		/// 
+		/// </summary>
+		/// <value>
+		/// The chapter title offset.
+		/// </value>
+		public int ChapterTitleOffset {
+			get {
+				return chapterTitleOffset;
+			}
+			set {
+				chapterTitleOffset = value;
+			}
+		}
 
-
+		private bool arealValidatorSafe_Align = false;
+		/// <summary>
+		/// Gets or sets a value indicating whether this <see cref="SendTextAway.ControlFile"/> areal validator safe_ align.
+		/// 
+		/// 14/07/2014 -- Added this to pass HTMl autotesting
+		/// Defaults to false so unit tests don't break
+		/// 
+		/// </summary>
+		/// <value>
+		/// <c>true</c> if areal validator safe_ align; otherwise, <c>false</c>.
+		/// </value>
+		public bool ArealValidatorSafe_Align {
+			get {
+				return arealValidatorSafe_Align;
+			}
+			set {
+				arealValidatorSafe_Align = value;
+			}
+		}
 
 		private bool novelMode = false;
 		/// <summary>

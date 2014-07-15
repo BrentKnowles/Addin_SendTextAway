@@ -62,6 +62,10 @@ namespace MefAddIns
 		public string Version
 		{
 			// Version History
+			// 1.1.1 - adding Chapter titles (if possible)
+			// 1.1     -  getting output to produce 0 errors in "A Real Validator"
+			// 1.0.8.2 - fixing [[fact]] errors, causing extra line feeds in epub version
+			// 1.0.8.1 - handling &quot and a couple other HTML escape &lt &gt 
 			// 1.0.8.0 - allow users to write [[~breakcomment]] to put a comment in that Calibre can do a find-replace on, to insert page breaks for PDF
 			// 1.0.7.0 - allow links to other files in epub -- right now you can only go web or anchors inline
 			// 1.0.6.0 - Attempting to handle multilevel (past 3) generically
@@ -71,7 +75,7 @@ namespace MefAddIns
 			         //- Tweaked toc blank in TEMPLATE files for epub Sendaway to not have a title page.
 			// 1.0.2.0 - series of bug fixes
 			// 1.0.1.0 - adding <game> tagging
-			get { return @"1.0.8.0"; }
+			get { return @"1.1.1.0"; }
 		}
 		public string Description
 		{

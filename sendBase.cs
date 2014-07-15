@@ -940,7 +940,13 @@ namespace SendTextAway
                                                                                                         /// we have code within formatting
                                                                                                         
                                                                                                         // may 2012 
+							//NewMessage.Show ("Variable Checked on line 943");
                                                                                                         VariableCheck(sBoldText, sOriginal, sFormats, false);
+							// OKAY: The logic here is that a few lines down (if bAllowWrite) we set the text to blank. 
+							//  so the errors we are are gettings (19/06/2014) may not have anything inherently to do with facts and are
+							// something that just crops up with </p> tag matching. In novel mode. perhaps only.
+
+
                                                                                                       //  VariableCheck2(sOriginal, sFormats);
                                                                                                     }
                                                 if (bOptional == true)
@@ -957,6 +963,7 @@ namespace SendTextAway
                                                 else
                                                     if (bAllowWrite == false)
                                                     {
+						//	NewMessage.Show ("Setting boldtext to blank");
                                                         sBoldText = ""; // we don't want to write codes
                                                       //  AddLineFeed = false; // june 2011 to get rid of empyt comments
 
@@ -978,7 +985,7 @@ namespace SendTextAway
                     if (sBoldText.IndexOf("[[") > -1)
                     {
                         // this applies ONLY when we have code with formatting.
-                        
+						//NewMessage.Show ("Variable Check on 982");
                        sBoldText =  VariableCheck(sBoldText, sOriginal, sFormats, true);
 
                         
@@ -1125,9 +1132,12 @@ namespace SendTextAway
         /// for text that indicates a text transcript of a chat
         // </summary>
         /// <param name="onoff">1 - means to activate it</param>
-        protected virtual void  ChatMode(int onoff)
-        {
-            InlineWrite("***");
+        protected virtual void  ChatMode (int onoff)
+		{
+			InlineWrite ("***");
+
+
+
         }
 
         /// <summary>
@@ -1138,6 +1148,8 @@ namespace SendTextAway
         /// <returns></returns>
         protected string VariableCheck(string sBoldText, string sOriginal, string[] sFormats, bool secondtype)
         {
+			//NewMessage.Show ("Here for " + sOriginal);
+
             //int start_index = sOriginal.IndexOf("[[");
             int nFirstBracket = sOriginal.IndexOf("[["); // in case on line with other brackets
             while (nFirstBracket > -1)
@@ -1238,7 +1250,7 @@ namespace SendTextAway
 
                 }
             }
-
+		//	sBoldText = "EEEK";
 
             return sBoldText;
 
@@ -1497,17 +1509,20 @@ namespace SendTextAway
         /// 
         /// </summary>
         /// <param name="sText"></param>
-        protected virtual string AddTitle(string sText)
-        {
-            // replace this with name of current Chapter
-            string sOriginal = sText;
-            // had to change the titling because Keeper was adding a title automatically with the [[title]] keyword
-            // JUNE 2010 using both now.
-            sText = sText.Replace("[[title_]]", chaptertoken);
-            sText = sText.Replace("[[title]]", chaptertoken);
+        protected virtual string AddTitle (string sText)
+		{
+			// replace this with name of current Chapter
+			string sOriginal = sText;
+			// had to change the titling because Keeper was adding a title automatically with the [[title]] keyword
+			// JUNE 2010 using both now.
+			sText = sText.Replace ("[[title_]]", chaptertoken);
+			sText = sText.Replace ("[[title]]", chaptertoken);
 
+			if (sText == "End Notes") {
+				chapter = 9999; 
+			}
             // if we modified the text it means we hit a title which means we are onto a new chapter
-            if (sText != sOriginal)
+            if (sText != sOriginal || sText =="End Notes")
             {
 
 

@@ -70,8 +70,14 @@ namespace SendTextAway
 		}
 
 		protected override string FixHTMLEncoding (string sText)
-		{
-			sText = sText.Replace ("&", "&amp;");
+																																															{
+
+// 21/05/2014
+// I want to be able to output stuff like &quot and &lt to escape characters -- so I'm thinking of just doing an exclusion test here. I'm sure there's better ways...
+// theoretically if I 'escaped' all the text correctly via a manual means -- as I have done in this case -- all should be fine
+if (sText.IndexOf ("&quot;") <= -1 && sText.IndexOf ("&lt;") <= -1 && sText.IndexOf ("&gt;") <= -1) {
+sText = sText.Replace ("&", "&amp;");
+					}
 			sText = sText.Replace ("…", "...");
 			// Unicode generic replacement http://stackoverflow.com/questions/1488866/how-to-replace-i-in-a-string
 			//sText = sText.Replace ("\xEF\xBF\xBD","...");
@@ -173,7 +179,29 @@ namespace SendTextAway
 		}
 		
 		
-		
+		protected override void ChatMode (int onoff)
+		{
+			switch (controlFile.ChatMode) {
+			case 0: if (onoff == 1) {
+					InlineWrite ("<u>");
+				} else {
+					InlineWrite ("</u>");
+				}
+				break;
+			case 1: if (onoff == 1) {
+					InlineWrite ("<i>");
+				} else {
+					InlineWrite ("</i>");
+				}
+				break;
+			case 2: if (onoff == 1) {
+					InlineWrite ("<b>");
+				} else {
+					InlineWrite ("</b>");
+				}
+				break;
+			}
+		}
 		/// <summary>
 		/// generic Insert function for InsertHeader and InsertFooter
 		/// </summary>
@@ -243,6 +271,12 @@ namespace SendTextAway
 		/// <param name="sText"></param>
 		protected override void InlineWrite (string sText)
 		{
+			bool debugOnlyIsBlank = false;
+			if (sText == Constants.BLANK) {
+				debugOnlyIsBlank = true;
+				//NewMessage.Show ("sText is blank");
+			}
+
 			if (true == adding_table && false == adding_row_to_table) {
 				adding_table = false;
 				file1.WriteLine ("</table>");
@@ -288,7 +322,7 @@ namespace SendTextAway
 			// May 2013 - do not add closers unless they are closing text
 			if (sText != Constants.BLANK && sText != " " && IsFormating == false) {
 				while (NeedParagraphClosingCounter > 0) {
-
+				//	NewMessage.Show ("for==" + sText);
 					paragraphclosers = paragraphclosers + "</p>";
 					NeedParagraphClosingCounter--;
 				}
@@ -303,7 +337,10 @@ namespace SendTextAway
 			sLine = sLine.Replace ("[>", "&gt;");
 
 
-
+			if (debugOnlyIsBlank) {
+			//	NewMessage.Show ("We had a blank line. Now we decide to write out: "+sLine);
+			}
+			//else // If you start off blank do you ever want to write anything 19/06/2014 -- This might be a very bad idea. Trying to resolve Novel_Facts_Paragraphs text. DID NOT FIX ANYTHING SO I RESET THIS
 			file1.Write (sLine);
 
 
@@ -646,15 +683,36 @@ namespace SendTextAway
 			// February 2013 - does every P break require a closing because of the pattern I've already established?
 			// May 2013 - these don't seem to be causing recent crop of errors [Nope: rejected. We cover this already with NeedParagraph Closing
 			case 0:
-				file1.WriteLine ("<p align=\"center\">");
+				if (this.controlFile.ArealValidatorSafe_Align)
+				{
+					file1.WriteLine ("<p class=\"center\">");
+				}
+				else
+				{
+					file1.WriteLine ("<p align=\"center\">");
+				}
 				TabParagraph++;
 				break;
 			case 1:
-				file1.WriteLine ("<p align=\"left\">");
+				if (this.controlFile.ArealValidatorSafe_Align)
+				{
+					file1.WriteLine ("<p class=\"left\">");
+				}
+				else
+				{
+					file1.WriteLine ("<p align=\"left\">");
+				}
 				TabParagraph++;
 				break;  
 			case 2:
-				file1.WriteLine ("<p align=\"right\">");
+				if (this.controlFile.ArealValidatorSafe_Align)
+				{
+					file1.WriteLine ("<p class=\"right\">");
+				}
+				else
+				{
+					file1.WriteLine ("<p align=\"right\">");
+				}
 				TabParagraph++;
 				break;
 			}
@@ -760,6 +818,8 @@ namespace SendTextAway
 			InlineWrite ("<a href=\"" + oLink + "\">" + oTextToShow + "</a>");
 			
 		}
+
+		private List<string> listOfChapterNames = null;
 		
 		/// <summary>
 		/// To do: Make AddTitle part of base
@@ -768,8 +828,33 @@ namespace SendTextAway
 		protected override string AddTitle (string sText)
 		{
 			sText = base.AddTitle (sText);
-			
+
+			if (sText.IndexOf (":") > -1) {
+				// creating fancier looking title if in format of 
+				/*--- See Harry Potter book, can I format Chaptesr like that
+
+ Chapter 1: Dog Eat Dog becomes
+
+  -- Chapter 1 --
+<h1>Dog Eat Dog</h1>
+*/	
+				string[] parts = sText.Split (new char[1] {':'}, StringSplitOptions.RemoveEmptyEntries);
+				if (parts != null && parts.Length > 1)
+				{
+					if (null == listOfChapterNames) {
+						listOfChapterNames = new List<string>();
+					}
+					// 14/07/2014 - we store chapter names with index [0] = Chapter 1, [1] = Chapter 2, et cetera
+					// these will be used later when the TOC is generated to give Chapter names in the TOC.
+					listOfChapterNames.Add (parts[1]);
+
+					InlineWrite (String.Format ("<p class=\"titlecenter\"> &#8212; {0} &#8212;</p>", parts[0]));
+					InlineWrite (String.Format ("<h1>{0}</h1>", parts[1]));
+				}
+			}
+			else
 			InlineWrite (String.Format ("<h1>{0}</h1>", sText));
+
 			return sText;
 			
 		}
@@ -849,6 +934,9 @@ namespace SendTextAway
 			// here we break off and start a new file
 			CloseCurrentFile ();
 			currentFileBeingWritten = Path.Combine (sDirectory, String.Format ("oebps\\Chapter_{0}.xhtml", chapter.ToString ()));
+			if (chapter == 9999) {
+				currentFileBeingWritten = Path.Combine (sDirectory, String.Format ("oebps\\{0}.xhtml", "endnote"));
+			}
 			StartNewFile (currentFileBeingWritten);
 		}
 
@@ -1024,6 +1112,8 @@ namespace SendTextAway
 		protected override void OnFinishedTotally ()
 		{
 			base.OnFinishedTotally ();
+		
+			//return;
 			if (this.controlFile.EpubRemoveDoublePageTags == true || this.controlFile.NovelMode == true) {
 				foreach (string aFileUsed in this.files) {
 					// process the file
@@ -1051,6 +1141,54 @@ namespace SendTextAway
 								sLine = sLine.Replace ("<br/><br/><br/>", "<br/>");
 							} else
 							if (this.controlFile.NovelMode == true) {
+								//19/06/2014 - blank open line shoudl not cause error
+								//sLine = sLine.Replace ("<body>\r" , "AT");
+								if (sLine == "<body>")
+								{
+									writer.WriteLine (sLine);
+									// we immediately read the next line and remove a <p></p> at start. Yes. I know. Dangerous.
+									sLine = source.ReadLine ();
+									// to ensure acfuracy, only grab start of line
+									try
+									{
+
+										string sub = sLine.Substring(0, 7);
+										if (sub == "<p></p>")
+										{
+											sLine = sLine.Remove(0, 7);
+										}
+										sub = sLine.Substring (0,4);
+										if (sub == "</p>")
+										{
+											sLine = sLine.Remove(0, 4);
+										}
+									}
+									catch (Exception)
+									{
+									}
+									
+								}
+							
+								//19/06/2014 - Added this because of a problem with POOL
+								sLine = sLine.Replace ("</p>.<p></p>", ".</p>");
+
+								//19/06/2014 -- if we have a [[fact], in middle of a line RIGHT AFTER A SCENE BREAK, the file breaks.
+								sLine = sLine.Replace ("</p>,", ",");
+								sLine = sLine.Replace ("</p>.", ".");
+								sLine = sLine.Replace ("</p>!", "!");
+								sLine = sLine.Replace ("</p>?", "?");
+								sLine = sLine.Replace ("</p> -", " -");
+								sLine = sLine.Replace ("</p> ", " "); // this might be pushing my luck, but it does break (see Novel-factafterscene_WITHOUTCOMMAN
+								sLine = sLine.Replace (" </p>", " "); // this might be pushing my luck, but it does break (see Novel-factafterscene_WITHOUTCOMMAN
+
+
+								//19/06/2014 - opening a titled section causes errors
+								sLine = sLine.Replace ("</h1><p></p><div", "</h1><div");
+//								<body>
+//									<p></p>	
+
+
+								// older ones
 								sLine = sLine.Replace ("\t", "<p>");
 								sLine = sLine.Replace ("<p></p>", "</p>");
 
@@ -1061,6 +1199,7 @@ namespace SendTextAway
 
 								sLine = sLine.Replace ("</div></p><p>", "</div><p>");
 								sLine = sLine.Replace ("#</p></p><p align=", "#</p><p align=");
+								sLine = sLine.Replace ("#</p></p><p class=", "#</p><p class=");
 								sLine = sLine.Replace ("</p></p><p>", "</p><p>");
 								//  33 - <p><p>Watts</p></div></body>
 								sLine = sLine.Replace ("<p><p>", "<p>");
@@ -1080,9 +1219,32 @@ namespace SendTextAway
 								//c35
 								sLine = sLine.Replace ("<div class=\"past\"></p>", "</p><div class=\"past\">");
 
+
 								// keep very end, apply other rules first -- Preface
-								sLine = sLine.Replace ("</p></p></p>", "");
-								sLine = sLine.Replace ("</p></p>", "");
+								while (sLine.IndexOf ("</p></p></p></p></p></p></p></p></p></p></p>") > -1)
+								{
+									sLine = sLine.Replace ("</p></p></p></p></p></p></p></p></p></p></p>", "");
+								}
+
+								// keep very end, apply other rules first -- Preface
+								while (sLine.IndexOf ("</p></p></p></p></p></p></p></p></p></p>") > -1)
+								{
+									sLine = sLine.Replace ("</p></p></p></p></p></p></p></p></p></p>", "");
+								}
+
+								// keep very end, apply other rules first -- Preface
+								while (sLine.IndexOf ("</p></p></p></p></p></p></p></p></p>") > -1)
+								{
+									sLine = sLine.Replace ("</p></p></p></p></p></p></p></p></p>", "");
+								}
+
+								while (sLine.IndexOf ("</p></p></p></p></p>") > -1)
+								{
+									sLine = sLine.Replace ("</p></p></p></p></p>", "");
+								}
+									sLine = sLine.Replace ("</p></p></p>", "");
+									sLine = sLine.Replace ("</p></p>", "");
+
 							}
 							writer.WriteLine (sLine);
 							sLine = source.ReadLine ();
@@ -1138,9 +1300,13 @@ namespace SendTextAway
 						line = reader.ReadLine ();
 					}
 					if (line == "[tocstart]") {
+
 						foreach (string s in files) {
+
+
 							// for it to work on Stanza I think the filenames need underliens and not spaces
 							string sFile = s.Replace (" ", "_").Trim ();
+
 							// this is basically dicating the order that the book appears
 							writer.WriteLine (String.Format ("<itemref idref=\"{0}\"/>", sFile));
 						}
@@ -1205,10 +1371,27 @@ namespace SendTextAway
 				
 					if (line == "[chaptersstart]") {
 						int count = 2;
+						int ChapterCountIndex = controlFile.ChapterTitleOffset;
 						foreach (string s in files) {  //make navlabel nice and translate the ids
+
+
+						
+
 							string navlabel = s.Replace (".xhtml", "").Trim ();
 							navlabel = navlabel.Replace ("_", " ").ToUpper ();
-
+							ChapterCountIndex++; // this index is used to figure out which chapter name (if any) to add
+							try
+							{
+								if (listOfChapterNames != null && ChapterCountIndex < listOfChapterNames.Count && ChapterCountIndex >= 0)
+								{
+									navlabel = String.Format ("{0} - {1}", navlabel, listOfChapterNames[ChapterCountIndex]);
+								}
+							}
+							catch (System.Exception ex)
+							{
+								NewMessage.Show (ex.ToString());
+							}
+							
 							// for it to work on Stanza I think the filenames need underliens and not spaces
 							string sFile = s;// s.Replace(" ", "_").Trim();
 							writer.WriteLine (String.Format ("<p><a href=\"{0}\">{1}</a></p>",
