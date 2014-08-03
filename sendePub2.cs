@@ -666,7 +666,12 @@ sText = sText.Replace ("&", "&amp;");
 			// not implemented
 		}
 		
-		
+		public override void OverrideSceneBreak()
+		{
+			// The DOUBLE </p></p> is intentional in here. I need to wrap the element in a <p> and but </p> gets stripped. The doubl e</p> tricks my logic.
+			//<p class=\"center\"> <p class=\"right\"></p>    
+			FormatRestOfText(String.Format ("<p class=\"center\"><img {0} alt=\"section break\"/></p><p/><p>", this.controlFile.Overridesectionbreak), false);
+		}
 		/// <summary>
 		/// Align text until next alignment command is hit
 		/// 0 - Center
@@ -1113,6 +1118,9 @@ sText = sText.Replace ("&", "&amp;");
 		{
 			base.OnFinishedTotally ();
 		
+
+		
+
 			//return;
 			if (this.controlFile.EpubRemoveDoublePageTags == true || this.controlFile.NovelMode == true) {
 				foreach (string aFileUsed in this.files) {
@@ -1134,6 +1142,11 @@ sText = sText.Replace ("&", "&amp;");
 						// copy
 						string sLine = source.ReadLine ();
 						while (sLine != null) {
+
+
+						
+
+
 							if (this.controlFile.EpubRemoveDoublePageTags == true) {
 								sLine = sLine.Replace ("<p></p>", "<br/>");
 								// if there's a bunch of breaks together consolidate them
@@ -1245,6 +1258,15 @@ sText = sText.Replace ("&", "&amp;");
 									sLine = sLine.Replace ("</p></p></p>", "");
 									sLine = sLine.Replace ("</p></p>", "");
 
+
+								if (this.controlFile.CustomEllip) {
+									//NewMessage.Show ("h");
+
+									//decided an end ellips would have a space before but not after
+									sLine = sLine.Replace("....", " &hellip;");
+									// mid-line ellipsis is suppose to have spce before and after
+									sLine = sLine.Replace("...", " &hellip; ");
+								}
 							}
 							writer.WriteLine (sLine);
 							sLine = source.ReadLine ();

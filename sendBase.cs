@@ -824,9 +824,22 @@ namespace SendTextAway
                                                                                 //@sResult = @sResult.Replace(@"\\", @"\");
                                                                                 //Console.WriteLine(@sResult);
                                                                                 //InlineWrite("\r\n");
-                                                                                FormatRestOfText("[[~center]]", false);
+                                                                                
+
+																				if (controlFile.Overridesectionbreak == Constants.BLANK)
+							{
+								FormatRestOfText("[[~center]]", false);
                                                                                 FormatRestOfText(controlFile.SceneBreak, true);
-                                                                                FormatRestOfText("[[~left]]", false);
+								FormatRestOfText("[[~left]]", false);
+							}
+							else
+							{
+								OverrideSceneBreak();
+							}
+
+						
+
+                                                                              
                                                                                 if (true == controlFile.SceneBreakHasTab)
                                                                                 {
                                                                                     AddTab();
@@ -1726,6 +1739,10 @@ namespace SendTextAway
 		public override string ToString ()
 		{
 			return string.Format ("[sendBase: ]");
+		}
+		public virtual void OverrideSceneBreak()
+		{
+			// only called in epub to get custom sceen break images
 		}
     }
 }

@@ -68,6 +68,39 @@ namespace SendTextAway
 				overrideStyleSheet = value;
 			}
 		}
+
+		private string overridesectionbreak=Constants.BLANK;
+		[Category(EPUB)]
+		[Description("Put the CODE in for image break, i.e., src=\".\\images\fleuron.png\" height=\"39px\" width=\"100px\" ")]
+		public string Overridesectionbreak {
+			get {
+				return overridesectionbreak;
+			}
+			set {
+				overridesectionbreak = value;
+			}
+		}
+
+
+
+		private bool customEllip=false;
+		/// <summary>
+		/// if true then epub will convert .... to ... but fancy like
+		/// </summary>
+		/// <value>
+		/// <c>true</c> if custom ellip; otherwise, <c>false</c>.
+		/// </value>
+		[Category(EPUB)]
+		[Description("Will replace four periods with a fancy ellipsis but only if NOvelMode=true")]
+		public bool CustomEllip {
+			get {
+				return customEllip;
+			}
+			set {
+				customEllip = value;
+			}
+		}
+
 		private int chapterTitleOffset = -1;
 		/// <summary>
 		/// Gets or sets the chapter title offset.
@@ -98,6 +131,7 @@ namespace SendTextAway
 		/// <value>
 		/// <c>true</c> if areal validator safe_ align; otherwise, <c>false</c>.
 		/// </value>
+		[Category(EPUB)]
 		public bool ArealValidatorSafe_Align {
 			get {
 				return arealValidatorSafe_Align;
