@@ -1517,7 +1517,7 @@ namespace SendTextAway
         protected virtual void OnTitleChange()
         {
         }
-
+		protected int CHAPTER_END_CODE = 9999;
         /// <summary>
         /// 
         /// </summary>
@@ -1531,11 +1531,13 @@ namespace SendTextAway
 			sText = sText.Replace ("[[title_]]", chaptertoken);
 			sText = sText.Replace ("[[title]]", chaptertoken);
 
+			sText = sText.Replace ("[[story]]","");
+
 			if (sText == "End Notes") {
-				chapter = 9999; 
+				chapter = CHAPTER_END_CODE; 
 			}
             // if we modified the text it means we hit a title which means we are onto a new chapter
-            if (sText != sOriginal || sText =="End Notes")
+			if (sText != sOriginal || chapter ==CHAPTER_END_CODE)
             {
 
 

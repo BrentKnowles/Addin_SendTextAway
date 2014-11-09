@@ -80,7 +80,16 @@ namespace SendTextAway
 				overridesectionbreak = value;
 			}
 		}
+		private bool emdash_removespacesbeforeafter=false;
 
+		public bool Emdash_removespacesbeforeafter {
+			get {
+				return emdash_removespacesbeforeafter;
+			}
+			set {
+				emdash_removespacesbeforeafter = value;
+			}
+		}
 
 
 		private bool customEllip=false;

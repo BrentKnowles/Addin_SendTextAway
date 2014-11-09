@@ -65,7 +65,13 @@ namespace SendTextAway
 			// so we ensure no semi-colon.
 			// (but realistically we should not need this...)
 			//sText = sText.Replace ("&", "&amp;");
+			if (controlFile.Emdash_removespacesbeforeafter == true) {
+				// removing spaces
+				sText = sText.Replace (" -- ", "&#8212;");
+				sText = sText.Replace (" --", "&#8212;");
 
+				sText = sText.Replace ("-- ", "&#8212;");
+			}
 			return sText.Replace ("--", "&#8212;");
 		}
 
@@ -832,6 +838,11 @@ sText = sText.Replace ("&", "&amp;");
 		/// <param name="sText"></param>
 		protected override string AddTitle (string sText)
 		{
+			string storyidentifier = "";
+			if (sText.IndexOf ("[[story]]") > -1) {
+				storyidentifier = StoryIdentifier = "1_1*1";;
+			}
+
 			sText = base.AddTitle (sText);
 
 			if (sText.IndexOf (":") > -1) {
@@ -851,14 +862,14 @@ sText = sText.Replace ("&", "&amp;");
 					}
 					// 14/07/2014 - we store chapter names with index [0] = Chapter 1, [1] = Chapter 2, et cetera
 					// these will be used later when the TOC is generated to give Chapter names in the TOC.
-					listOfChapterNames.Add (parts[1]);
+					listOfChapterNames.Add (storyidentifier+parts[1]);
 
 					InlineWrite (String.Format ("<p class=\"titlecenter\"> &#8212; {0} &#8212;</p>", parts[0]));
 					InlineWrite (String.Format ("<h1>{0}</h1>", parts[1]));
 				}
 			}
 			else
-			InlineWrite (String.Format ("<h1>{0}</h1>", sText));
+				InlineWrite (String.Format ("<h1>{0}</h1>", sText));
 
 			return sText;
 			
@@ -1263,9 +1274,9 @@ sText = sText.Replace ("&", "&amp;");
 									//NewMessage.Show ("h");
 
 									//decided an end ellips would have a space before but not after
-									sLine = sLine.Replace("....", " &hellip;");
+									sLine = sLine.Replace("....", "&hellip;.");
 									// mid-line ellipsis is suppose to have spce before and after
-									sLine = sLine.Replace("...", " &hellip; ");
+									sLine = sLine.Replace("...", "&hellip; ");
 								}
 							}
 							writer.WriteLine (sLine);
@@ -1284,6 +1295,7 @@ sText = sText.Replace ("&", "&amp;");
 			}
 
 		}
+		string StoryIdentifier = "1_1*1";
 		/// <summary>
 		/// goes through the files aaraylist and creates an xml file content.opf
 		/// </summary>
@@ -1406,7 +1418,16 @@ sText = sText.Replace ("&", "&amp;");
 							{
 								if (listOfChapterNames != null && ChapterCountIndex < listOfChapterNames.Count && ChapterCountIndex >= 0)
 								{
-									navlabel = String.Format ("{0} - {1}", navlabel, listOfChapterNames[ChapterCountIndex]);
+
+									// tweaking things so that short stories don't show the word "Chapter" in TOC
+									string chapterName = listOfChapterNames[ChapterCountIndex];
+									if (chapterName.IndexOf(StoryIdentifier) > -1)
+									{
+										chapterName = chapterName.Replace (StoryIdentifier, "");
+										navlabel = String.Format ("{0}", chapterName);
+									}
+									else
+										navlabel = String.Format ("{0} - {1}", navlabel, chapterName);
 								}
 							}
 							catch (System.Exception ex)
